@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LLVMCompiler", "LLVMCompiler\LLVMCompiler.csproj", "{17169F09-17C5-46A5-A100-8B28EBF5C66A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParsingTools", "ParsingTools\ParsingTools.csproj", "{64583D48-F8C5-4B7C-92E9-DE82E8106677}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{17169F09-17C5-46A5-A100-8B28EBF5C66A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{17169F09-17C5-46A5-A100-8B28EBF5C66A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{17169F09-17C5-46A5-A100-8B28EBF5C66A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{17169F09-17C5-46A5-A100-8B28EBF5C66A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{64583D48-F8C5-4B7C-92E9-DE82E8106677}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{64583D48-F8C5-4B7C-92E9-DE82E8106677}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{64583D48-F8C5-4B7C-92E9-DE82E8106677}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{64583D48-F8C5-4B7C-92E9-DE82E8106677}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
