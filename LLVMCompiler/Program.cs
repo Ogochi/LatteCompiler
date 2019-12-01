@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using Antlr4.Runtime;
 using LLVMCompiler.StateManagement;
-using static LLVMCompiler.Utils.BashUtils;
 using ParsingTools;
+using static LLVMCompiler.Utils.BashUtils;
 
 namespace LLVMCompiler
 {
@@ -27,9 +26,13 @@ namespace LLVMCompiler
             var fileName = Path.GetFileNameWithoutExtension(args[0]);
             var filePath = Path.GetDirectoryName(args[0]);
 
-            var compileResult = CompileFile(args[0]);
+            if (!ParseAndCompileFile(args[0], out var compilationResult))
+            {
+                Console.Error.WriteLine("\n----\nEncountered parsing errors.\n");
+                return ErrorCode;
+            }
 
-            ErrorState errorState = ErrorState.Instance;
+            var errorState = ErrorState.Instance;
             if (errorState.isError())
             {
                 Console.Error.WriteLine($"Found {errorState.errorsCount()} errors.\n");
@@ -41,7 +44,7 @@ namespace LLVMCompiler
             var compiledFilePath = Path.Combine(filePath, fileName + LLVMExtension);
             using (var file = File.CreateText(compiledFilePath))
             {
-                compileResult.ForEach(file.WriteLine);
+                compilationResult.ForEach(file.WriteLine);
             }
 
             ExecuteBashCommand($"llvm-as -o {fileName}.tmp {compiledFilePath}");
@@ -67,7 +70,10 @@ namespace LLVMCompiler
             return true;
         }
 
-        private static List<string> CompileFile(string fileFullPath)
+        /*
+         * Returns "false" on parsing error
+         */
+        private static bool ParseAndCompileFile(string fileFullPath, out List<String> compilationResult)
         {
             LatteLexer lexer = new LatteLexer(new AntlrFileStream(fileFullPath));
             LatteParser parser = new LatteParser(new CommonTokenStream(lexer))
@@ -76,7 +82,9 @@ namespace LLVMCompiler
             };
 
             LatteParser.ProgramContext program = parser.program();
-            return null; // TODO - use compiler
+            compilationResult = new List<string>() {""}; // TODO - use compiler on program
+
+            return parser.NumberOfSyntaxErrors == 0;
         }
     }
 }
