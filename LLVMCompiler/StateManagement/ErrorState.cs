@@ -17,6 +17,8 @@ namespace LLVMCompiler.StateManagement
         
         public bool isError() => _errorMessages.Count > 0;
 
+        public int errorsCount() => _errorMessages.Count;
+
         public List<string> GetErrorText() => _errorMessages.Select(msg => msg.ToString()).ToList();
     }
 }
