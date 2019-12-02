@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using ParsingTools;
 
@@ -29,6 +30,19 @@ namespace Frontend.StateManagement
             foreach (var item in _previousScopeVarDefs.Peek())
             {
                 NameToVarDef[item.Key] = new VarDef(item.Value.Type, item.Value.Name);
+            }
+        }
+
+        public void AddTopDef(LatteParser.TopDefContext topDef)
+        {
+            switch (topDef)
+            {
+                case LatteParser.FunctionDefContext functionDef:
+                    NameToFunctionDef[functionDef.ID().GetText()] = functionDef;
+                    break;
+                
+                case LatteParser.ClassDefContext classDef:
+                    throw new NotImplementedException();
             }
         }
     }
