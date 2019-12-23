@@ -9,7 +9,7 @@ for f in $FRONT_TESTS/*.lat
 do
 	./latc_llvm $f 2> /dev/null
 
-	if [ $? == 1 ]; then
+	if [ $? == 0 ]; then
    		printf "Test $f failed.\n"
 	fi
 done
