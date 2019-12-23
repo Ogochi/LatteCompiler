@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using Antlr4.Runtime;
+using Frontend;
 using LLVMCompiler.StateManagement;
 using ParsingTools;
 using static LLVMCompiler.Utils.BashUtils;
@@ -75,13 +76,17 @@ namespace LLVMCompiler
          */
         private static bool ParseAndCompileFile(string fileFullPath, out List<String> compilationResult)
         {
-            LatteLexer lexer = new LatteLexer(new AntlrFileStream(fileFullPath));
-            LatteParser parser = new LatteParser(new CommonTokenStream(lexer))
+            var lexer = new LatteLexer(new AntlrFileStream(fileFullPath));
+            var parser = new LatteParser(new CommonTokenStream(lexer))
             {
                 BuildParseTree = true
             };
 
-            LatteParser.ProgramContext program = parser.program();
+            var program = parser.program();
+
+            var staticCheck = new StaticChecker();
+            staticCheck.CheckProgram(program);
+            
             compilationResult = new List<string>() {""}; // TODO - use compiler on program
 
             return parser.NumberOfSyntaxErrors == 0;

@@ -10,3 +10,4 @@ clean:
 	@rm -f *.exe
 	@rm -f *.pdb
 	@rm -f *.mdb
+	@rm -f *.ll
