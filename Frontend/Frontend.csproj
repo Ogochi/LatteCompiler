@@ -45,7 +45,6 @@
         <Compile Include="Properties\AssemblyInfo.cs" />
         <Compile Include="StateManagement\FrontendEnvironment.cs" />
         <Compile Include="StateManagement\VarDef.cs" />
-        <Compile Include="StaticChecker.cs" />
         <Compile Include="StaticCheckListener.cs" />
     </ItemGroup>
     <ItemGroup>

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using Antlr4.Runtime;
+using Antlr4.Runtime.Tree;
 using Frontend;
 using LLVMCompiler.StateManagement;
 using ParsingTools;
@@ -83,9 +84,7 @@ namespace LLVMCompiler
             };
 
             var program = parser.program();
-
-            var staticCheck = new StaticChecker();
-            staticCheck.CheckProgram(program);
+            ParseTreeWalker.Default.Walk(new StaticCheckListener(), program);
             
             compilationResult = new List<string>() {""}; // TODO - use compiler on program
 

@@ -10,13 +10,13 @@ namespace Frontend.StateManagement
         
         public IDictionary<string, LatteParser.FunctionDefContext> NameToFunctionDef { get; private set; } =
             new Dictionary<string, LatteParser.FunctionDefContext>();
-
+        
+        public IDictionary<string, VarDef> NameToVarDef { get; private set; } = new Dictionary<string, VarDef>();
 
         public static FrontendEnvironment Instance { get; } = new FrontendEnvironment();
 
         private FrontendEnvironment() {}
-        public IDictionary<string, VarDef> NameToVarDef { get; private set; } = new Dictionary<string, VarDef>();
-
+        
         public void RestorePreviousVarEnv()
         {
             NameToVarDef = _previousScopeVarDefs.Pop();
