@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using Frontend.StateManagement;
 using Common.StateManagement;
+using Frontend.ContextVisitor;
 using ParsingTools;
 
 namespace Frontend
@@ -54,7 +55,7 @@ namespace Frontend
                 {
                     _errorState.AddErrorMessage(new ErrorMessage(
                         context.start.Line,
-                        ErrorMessages.VarAlreadyDefinedMsg(ident)));
+                        ErrorMessages.VarAlreadyDefined(ident)));
                 }
                 
                 _environment.NameToVarDef[ident] = new VarDef(type, ident);
@@ -68,17 +69,18 @@ namespace Frontend
 
         public override void EnterBlockStmt(LatteParser.BlockStmtContext context)
         {
-            base.EnterBlockStmt(context);
+            _environment.DetachVarEnv();
         }
 
         public override void ExitBlockStmt(LatteParser.BlockStmtContext context)
         {
-            base.ExitBlockStmt(context);
+           _environment.RestorePreviousVarEnv();
         }
 
         public override void EnterAss(LatteParser.AssContext context)
         {
-            base.EnterAss(context);
+            var v = new ExpressionTypeVisitor();
+            v.Visit(context.expr());
         }
 
         public override void EnterRet(LatteParser.RetContext context)

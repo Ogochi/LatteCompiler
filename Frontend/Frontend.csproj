@@ -43,6 +43,8 @@
         <Reference Include="System.Xml" />
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="ContextVisitor\ExpressionTypeVisitor.cs" />
+        <Compile Include="Exception\InterruptedStaticCheckException.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
         <Compile Include="StateManagement\ErrorMessages.cs" />
         <Compile Include="StateManagement\FrontendEnvironment.cs" />

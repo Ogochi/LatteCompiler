@@ -5,6 +5,7 @@ using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
 using Frontend;
 using Common.StateManagement;
+using Frontend.Exception;
 using ParsingTools;
 using static LLVMCompiler.Utils.BashUtils;
 
@@ -37,7 +38,8 @@ namespace LLVMCompiler
             var errorState = ErrorState.Instance;
             if (errorState.isError())
             {
-                Console.Error.WriteLine($"Found {errorState.errorsCount()} errors.\n");
+                Console.Error.WriteLine(
+                    $"Found {errorState.errorsCount()} error{(errorState.errorsCount() > 1 ? "s" : "")}.\n");
                 errorState.GetErrorText().ForEach(Console.Error.WriteLine);
 
                 return ErrorCode;
@@ -84,7 +86,11 @@ namespace LLVMCompiler
             };
 
             var program = parser.program();
-            ParseTreeWalker.Default.Walk(new StaticCheckListener(), program);
+            try
+            {
+                ParseTreeWalker.Default.Walk(new StaticCheckListener(), program);
+            }
+            catch (InterruptedStaticCheckException) {}
             
             compilationResult = new List<string>() {""}; // TODO - use compiler on program
 
