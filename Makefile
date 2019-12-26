@@ -3,6 +3,7 @@ all:
 	@msbuild
 	@cp LLVMCompiler/bin/Debug/* .
 	@mv LLVMCompiler.exe latc_llvm
+	@chmod +x latc_llvm
 clean:
 	@rm -f latc_*
 	@rm -f *.dll

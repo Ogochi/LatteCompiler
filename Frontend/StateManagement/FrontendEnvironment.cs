@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using ParsingTools;
 
 namespace Frontend.StateManagement
 {
     public class FrontendEnvironment
     {
-        private Stack<IDictionary<string, VarDef>> _previousScopeVarDefs  = new Stack<IDictionary<string, VarDef>>();
+        private readonly Stack<IDictionary<string, VarDef>> _previousScopeVarDefs  = new Stack<IDictionary<string, VarDef>>();
         
         public IDictionary<string, LatteParser.FunctionDefContext> NameToFunctionDef { get; private set; } =
             new Dictionary<string, LatteParser.FunctionDefContext>();

@@ -9,11 +9,30 @@ namespace Frontend
     public class StaticCheckListener : LatteBaseListener
     {
         private readonly FrontendEnvironment _environment = FrontendEnvironment.Instance;
-        private readonly ErrorState _errorState;
+        private readonly ErrorState _errorState = ErrorState.Instance;
         
         public override void EnterProgram(LatteParser.ProgramContext context)
         {
-            context.topDef().ToList().ForEach(FrontendEnvironment.Instance.AddTopDef);
+            context.topDef().ToList().ForEach(topDef =>
+            {
+                switch (topDef)
+                {
+                    case LatteParser.FunctionDefContext fDef:
+                        var id = fDef.ID().GetText();
+                        
+                        if (_environment.NameToFunctionDef.ContainsKey(id))
+                        {
+                            _errorState.AddErrorMessage(new ErrorMessage(
+                                topDef.start.Line,
+                                ErrorMessages.FuncAlreadyDefined(id)));
+                        }
+                        break;
+                    case LatteParser.ClassDefContext cDef:
+                        throw new NotImplementedException();
+                }
+
+                FrontendEnvironment.Instance.AddTopDef(topDef);
+            });
         }
 
         public override void EnterFunctionDef(LatteParser.FunctionDefContext context)
@@ -44,7 +63,7 @@ namespace Frontend
 
         public override void ExitFunctionDef(LatteParser.FunctionDefContext context)
         {
-            base.ExitFunctionDef(context);
+            _environment.RestorePreviousVarEnv();
         }
 
         public override void EnterBlockStmt(LatteParser.BlockStmtContext context)
