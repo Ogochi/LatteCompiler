@@ -124,7 +124,30 @@ namespace Frontend
 
         public override void EnterDecl(LatteParser.DeclContext context)
         {
-            base.EnterDecl(context);
+            foreach (var decl in context.item())
+            {
+                var id = decl.ID().GetText();
+                if (_environment.NameToVarDef.ContainsKey(id))
+                {
+                    _errorState.AddErrorMessage(new ErrorMessage(
+                        decl.start.Line,
+                        decl.start.Column,
+                        ErrorMessages.VarAlreadyDefined(id)));
+                }
+                
+                _environment.NameToVarDef[id] = new VarDef(context.type(), id);
+
+                if (decl.expr() == null) continue;
+                
+                var exprType = new ExpressionTypeVisitor().Visit(decl.expr());
+                if (!context.type().Equals(exprType))
+                {
+                    StateUtils.InterruptWithMessage(
+                        decl.start.Line,
+                        decl.start.Column,
+                        ErrorMessages.VarExprTypesMismatch(exprType.GetType() + ", " + context.type().GetType()));
+                }
+            }
         }
 
         public override void EnterWhile(LatteParser.WhileContext context)

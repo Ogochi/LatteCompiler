@@ -90,7 +90,7 @@ namespace LLVMCompiler
             {
                 ParseTreeWalker.Default.Walk(new StaticCheckListener(), program);
             }
-            catch (InterruptedStaticCheckException) {}
+            catch (Exception) {}
             
             compilationResult = new List<string>() {""}; // TODO - use compiler on program
 

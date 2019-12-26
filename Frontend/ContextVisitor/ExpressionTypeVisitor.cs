@@ -40,7 +40,7 @@ namespace Frontend.ContextVisitor
             var lhs = Visit(context.expr()[0]);
             var rhs = Visit(context.expr()[1]);
 
-            if (!lhs.Equals(rhs) || !lhs.Equals(new TIntContext()))
+            if (!lhs.Equals(rhs) || !lhs.Equals(new LatteParser.TIntContext()))
             {
                 Utils.StateUtils.InterruptWithMessage(context.start.Line, ErrorMessages.RelOpToNotInt);
             }
@@ -50,7 +50,7 @@ namespace Frontend.ContextVisitor
 
         public override LatteParser.TypeContext VisitETrue(LatteParser.ETrueContext context)
         {
-            return new TBoolContext();
+            return new LatteParser.TBoolContext();
         }
 
         public override LatteParser.TypeContext VisitEOr(LatteParser.EOrContext context)
@@ -58,7 +58,7 @@ namespace Frontend.ContextVisitor
             var lhs = Visit(context.expr()[0]);
             var rhs = Visit(context.expr()[1]);
 
-            if (!lhs.Equals(rhs) || !lhs.Equals(new TBoolContext()))
+            if (!lhs.Equals(rhs) || !lhs.Equals(new LatteParser.TBoolContext()))
             {
                 Utils.StateUtils.InterruptWithMessage(context.start.Line, ErrorMessages.LogicOpToNotBool);
             }
@@ -68,14 +68,14 @@ namespace Frontend.ContextVisitor
 
         public override LatteParser.TypeContext VisitEInt(LatteParser.EIntContext context)
         {
-            return new TIntContext();
+            return new LatteParser.TIntContext();
         }
 
         public override LatteParser.TypeContext VisitEUnOp(LatteParser.EUnOpContext context)
         {
             var expr = Visit(context.expr());
 
-            if (expr.Equals(new TIntContext()))
+            if (expr.Equals(new LatteParser.TIntContext()))
             {
                 Utils.StateUtils.InterruptWithMessage(context.start.Line, ErrorMessages.UnaryOpToNotInt);
             }
@@ -85,7 +85,7 @@ namespace Frontend.ContextVisitor
 
         public override LatteParser.TypeContext VisitEStr(LatteParser.EStrContext context)
         {
-            return new TStringContext();
+            return new LatteParser.TStringContext();
         }
 
         public override LatteParser.TypeContext VisitEMethodCall(LatteParser.EMethodCallContext context)
@@ -98,7 +98,7 @@ namespace Frontend.ContextVisitor
             var lhs = Visit(context.expr()[0]);
             var rhs = Visit(context.expr()[1]);
 
-            if (!lhs.Equals(rhs) || !lhs.Equals(new TIntContext()))
+            if (!lhs.Equals(rhs) || !lhs.Equals(new LatteParser.TIntContext()))
             {
                 Utils.StateUtils.InterruptWithMessage(context.start.Line, ErrorMessages.ArithmeticOpToNotInt);
             }
@@ -111,7 +111,7 @@ namespace Frontend.ContextVisitor
             var lhs = Visit(context.expr()[0]);
             var rhs = Visit(context.expr()[1]);
 
-            if (!lhs.Equals(rhs) || !lhs.Equals(new TBoolContext()))
+            if (!lhs.Equals(rhs) || !lhs.Equals(new LatteParser.TBoolContext()))
             {
                 Utils.StateUtils.InterruptWithMessage(context.start.Line, ErrorMessages.LogicOpToNotBool);
             }
@@ -126,7 +126,7 @@ namespace Frontend.ContextVisitor
 
         public override LatteParser.TypeContext VisitEFalse(LatteParser.EFalseContext context)
         {
-            return new TBoolContext();
+            return new LatteParser.TBoolContext();
         }
 
         public override LatteParser.TypeContext VisitEAddOp(LatteParser.EAddOpContext context)
@@ -134,7 +134,7 @@ namespace Frontend.ContextVisitor
             var lhs = Visit(context.expr()[0]);
             var rhs = Visit(context.expr()[1]);
 
-            if (!lhs.Equals(rhs) || !lhs.Equals(new TIntContext()))
+            if (!lhs.Equals(rhs) || !lhs.Equals(new LatteParser.TIntContext()))
             {
                 Utils.StateUtils.InterruptWithMessage(context.start.Line, ErrorMessages.ArithmeticOpToNotInt);
             }
