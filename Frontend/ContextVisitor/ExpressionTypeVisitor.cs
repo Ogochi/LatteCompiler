@@ -75,12 +75,23 @@ namespace Frontend.ContextVisitor
         {
             var expr = Visit(context.expr());
 
-            if (!expr.Equals(new LatteParser.TIntContext()))
+            switch (context.unOp())
             {
-                Utils.StateUtils.InterruptWithMessage(context.start.Line, ErrorMessages.UnaryOpToNotInt);
+                case LatteParser.UnaryMinusContext _:
+                    if (!expr.Equals(new LatteParser.TIntContext()))
+                    {
+                        Utils.StateUtils.InterruptWithMessage(context.start.Line, ErrorMessages.UnaryMinusToNotInt);
+                    }
+                    return new LatteParser.TIntContext();
+                case LatteParser.UnaryNegContext _:
+                    if (!expr.Equals(new LatteParser.TBoolContext()))
+                    {
+                        Utils.StateUtils.InterruptWithMessage(context.start.Line, ErrorMessages.UnaryNegToNotBool);
+                    }
+                    return new LatteParser.TBoolContext();
+                default:
+                    throw new NotImplementedException();
             }
-
-            return new LatteParser.TIntContext();
         }
 
         public override LatteParser.TypeContext VisitEStr(LatteParser.EStrContext context)
