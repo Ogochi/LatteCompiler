@@ -1,13 +1,15 @@
 using System;
 using System.Linq;
 using Frontend.StateManagement;
+using Common.StateManagement;
 using ParsingTools;
 
 namespace Frontend
 {
     public class StaticCheckListener : LatteBaseListener
     {
-        private FrontendEnvironment _environment = FrontendEnvironment.Instance;
+        private readonly FrontendEnvironment _environment = FrontendEnvironment.Instance;
+        private readonly ErrorState _errorState;
         
         public override void EnterProgram(LatteParser.ProgramContext context)
         {
@@ -17,8 +19,27 @@ namespace Frontend
         public override void EnterFunctionDef(LatteParser.FunctionDefContext context)
         {
             _environment.DetachVarEnv();
+            _environment.CurrentFunction = context.ID().GetText();
 
-            Console.WriteLine(context.arg().type().Length);
+            if (context.arg() == null)
+            {
+                return;
+            }
+
+            var args = context.arg().type().Zip(context.arg().ID(), (a, b) => (a, b));
+            foreach (var (type, id) in args)
+            {
+                var ident = id.GetText();
+                
+                if (_environment.NameToVarDef.ContainsKey(ident))
+                {
+                    _errorState.AddErrorMessage(new ErrorMessage(
+                        context.start.Line,
+                        ErrorMessages.VarAlreadyDefinedMsg(ident)));
+                }
+                
+                _environment.NameToVarDef[ident] = new VarDef(type, ident);
+            }
         }
 
         public override void ExitFunctionDef(LatteParser.FunctionDefContext context)

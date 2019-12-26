@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace LLVMCompiler.StateManagement
+namespace Common.StateManagement
 {
     public class ErrorState
     {

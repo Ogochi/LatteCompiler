@@ -4,7 +4,7 @@ using System.IO;
 using Antlr4.Runtime;
 using Antlr4.Runtime.Tree;
 using Frontend;
-using LLVMCompiler.StateManagement;
+using Common.StateManagement;
 using ParsingTools;
 using static LLVMCompiler.Utils.BashUtils;
 

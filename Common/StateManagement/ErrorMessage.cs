@@ -1,4 +1,4 @@
-namespace LLVMCompiler.StateManagement
+namespace Common.StateManagement
 {
     public class ErrorMessage
     {

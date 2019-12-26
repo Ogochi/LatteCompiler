@@ -13,6 +13,8 @@ namespace Frontend.StateManagement
         
         public IDictionary<string, VarDef> NameToVarDef { get; private set; } = new Dictionary<string, VarDef>();
 
+        public string CurrentFunction { get; set; }
+        
         public static FrontendEnvironment Instance { get; } = new FrontendEnvironment();
 
         private FrontendEnvironment() {}
