@@ -75,7 +75,7 @@ namespace Frontend.ContextVisitor
         {
             var expr = Visit(context.expr());
 
-            if (expr.Equals(new LatteParser.TIntContext()))
+            if (!expr.Equals(new LatteParser.TIntContext()))
             {
                 Utils.StateUtils.InterruptWithMessage(context.start.Line, ErrorMessages.UnaryOpToNotInt);
             }

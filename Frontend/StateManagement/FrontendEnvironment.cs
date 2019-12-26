@@ -32,7 +32,7 @@ namespace Frontend.StateManagement
             NameToVarDef = new Dictionary<string, VarDef>();
             foreach (var item in _previousScopeVarDefs.Peek())
             {
-                NameToVarDef[item.Key] = new VarDef(item.Value.Type, item.Value.Name);
+                NameToVarDef[item.Key] = new VarDef(item.Value.Type, item.Value.Name, false);
             }
         }
 

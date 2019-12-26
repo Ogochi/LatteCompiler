@@ -127,7 +127,8 @@ namespace Frontend
             foreach (var decl in context.item())
             {
                 var id = decl.ID().GetText();
-                if (_environment.NameToVarDef.ContainsKey(id))
+                if (_environment.NameToVarDef.ContainsKey(id) && 
+                    _environment.NameToVarDef[id].IsDefinedInCurrentBlock)
                 {
                     _errorState.AddErrorMessage(new ErrorMessage(
                         decl.start.Line,
