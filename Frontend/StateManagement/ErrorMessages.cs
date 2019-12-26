@@ -18,5 +18,7 @@ namespace Frontend.StateManagement
         public static string ArithmeticOpToNotInt = "Arithmetic operators can be used only with integer values.";
         public static string UnaryOpToNotInt = "Unary minus operator can be applied only to integer value.";
         public static string VarExprTypesMismatch(string id) => $"Types mismatch for variable '{id}' and assigned expression.";
+        public static string DecrOnlyOnInt(string id) => $"Tried to decrement '{id}', which is not integer variable.";
+        public static string IncrOnlyOnInt(string id) => $"Tried to increment '{id}', which is not integer variable.";
     }
 }

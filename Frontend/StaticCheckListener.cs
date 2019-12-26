@@ -156,19 +156,44 @@ namespace Frontend
             base.EnterWhile(context);
         }
 
-        public override void EnterSExp(LatteParser.SExpContext context)
-        {
-            base.EnterSExp(context);
-        }
-
         public override void EnterDecr(LatteParser.DecrContext context)
         {
-            base.EnterDecr(context);
+            var id = context.ID().GetText();
+            if (!_environment.NameToVarDef.ContainsKey(id))
+            {
+                _errorState.AddErrorMessage(new ErrorMessage(
+                    context.start.Line,
+                    context.start.Column,
+                    ErrorMessages.VarNotDefined(id)));
+            }
+            
+            if (!_environment.NameToVarDef[id].Type.Equals(new LatteParser.TIntContext()))
+            {
+                _errorState.AddErrorMessage(new ErrorMessage(
+                    context.start.Line,
+                    context.start.Column,
+                    ErrorMessages.DecrOnlyOnInt(id)));
+            }
         }
 
         public override void EnterIncr(LatteParser.IncrContext context)
         {
-            base.EnterIncr(context);
+            var id = context.ID().GetText();
+            if (!_environment.NameToVarDef.ContainsKey(id))
+            {
+                _errorState.AddErrorMessage(new ErrorMessage(
+                    context.start.Line,
+                    context.start.Column,
+                    ErrorMessages.VarNotDefined(id)));
+            }
+            
+            if (!_environment.NameToVarDef[id].Type.Equals(new LatteParser.TIntContext()))
+            {
+                _errorState.AddErrorMessage(new ErrorMessage(
+                    context.start.Line,
+                    context.start.Column,
+                    ErrorMessages.IncrOnlyOnInt(id)));
+            }
         }
     }
 }
