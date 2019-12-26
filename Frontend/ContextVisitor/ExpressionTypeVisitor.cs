@@ -40,9 +40,24 @@ namespace Frontend.ContextVisitor
             var lhs = Visit(context.expr()[0]);
             var rhs = Visit(context.expr()[1]);
 
-            if (!lhs.Equals(rhs) || !lhs.Equals(new LatteParser.TIntContext()))
+            switch (context.relOp())
             {
-                Utils.StateUtils.InterruptWithMessage(context.start.Line, ErrorMessages.RelOpToNotInt);
+                case LatteParser.LessThanContext _:
+                case LatteParser.LessEqualsContext _:
+                case LatteParser.GreaterThanContext _:
+                case LatteParser.GreaterEqualsContext _:
+                    if (!lhs.Equals(rhs) || !lhs.Equals(new LatteParser.TIntContext()))
+                    {
+                        Utils.StateUtils.InterruptWithMessage(context.start.Line, ErrorMessages.CompOpToNotInt);
+                    }
+                    break;
+                case LatteParser.EqualsContext _:
+                case LatteParser.NotEqualsContext _:
+                    if (!lhs.Equals(rhs))
+                    {
+                        Utils.StateUtils.InterruptWithMessage(context.start.Line, ErrorMessages.EqOpWrongTypes);
+                    }
+                    break;
             }
 
             return new LatteParser.TBoolContext();

@@ -13,7 +13,8 @@ namespace Frontend.StateManagement
         public static string WrongArgTypeFuncCall(string funcId, string paramId, string paramType) =>
             $"Function '{funcId}' has been called with argument of type other than '{paramType}' for parameter '{paramId}.'";
 
-        public static string RelOpToNotInt = "Relational operators can be used only with integer values.";
+        public static string CompOpToNotInt = "Comparing operators can be used only with integer values.";
+        public static string EqOpWrongTypes = "Equality operators can be used only with values of the same type.";
         public static string LogicOpToNotBool = "Logic operators can be used only with boolean values.";
         public static string ArithmeticOpToNotInt = "Arithmetic operators can be used only with integer values.";
         public static string UnaryMinusToNotInt = "Unary minus operator can be applied only to integer value.";
