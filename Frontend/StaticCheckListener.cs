@@ -153,8 +153,23 @@ namespace Frontend
 
         public override void EnterWhile(LatteParser.WhileContext context)
         {
-            base.EnterWhile(context);
+            _environment.DetachVarEnv();
+
+            var exprType = new ExpressionTypeVisitor().Visit(context.expr());
+            if (!exprType.Equals(new LatteParser.TBoolContext()))
+            {
+                _errorState.AddErrorMessage(new ErrorMessage(
+                    context.expr().start.Line,
+                    context.expr().start.Line,
+                    ErrorMessages.WhileWrongCondition));
+            }
         }
+        
+        public override void ExitWhile(LatteParser.WhileContext context)
+        {
+            _environment.RestorePreviousVarEnv();
+        }
+        
 
         public override void EnterDecr(LatteParser.DecrContext context)
         {

@@ -20,5 +20,6 @@ namespace Frontend.StateManagement
         public static string VarExprTypesMismatch(string id) => $"Types mismatch for variable '{id}' and assigned expression.";
         public static string DecrOnlyOnInt(string id) => $"Tried to decrement '{id}', which is not integer variable.";
         public static string IncrOnlyOnInt(string id) => $"Tried to increment '{id}', which is not integer variable.";
+        public static string WhileWrongCondition = "While condition can be only boolean expression.";
     }
 }
