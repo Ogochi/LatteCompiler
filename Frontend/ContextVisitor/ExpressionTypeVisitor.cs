@@ -10,7 +10,7 @@ namespace Frontend.ContextVisitor
     {
         private readonly FrontendEnvironment _environment = FrontendEnvironment.Instance;
         private readonly ErrorState _errorState = ErrorState.Instance;
-        
+
         public override LatteParser.TypeContext VisitEId(LatteParser.EIdContext context)
         {
             var id = context.ID().GetText();
@@ -115,13 +115,41 @@ namespace Frontend.ContextVisitor
         {
             var id = fCall.ID().GetText();
 
+            if ((fDef.arg()?.type().Length ?? 0) != (fCall?.expr().Length ?? 0))
+            {
+                _errorState.AddErrorMessage(new ErrorMessage(
+                    fCall.start.Line,
+                    ErrorMessages.WrongArgsCountFuncCall(id)));
+            }
+
             if (fDef.arg() == null)
             {
-                //if (fCall.expr())
+                return;
             }
-            Console.Write(fCall.expr().Length + " ");
-            Console.WriteLine(fDef.arg().type().Length);
+
+            CheckFunctionCallArgsForEqualCount(fDef, fCall);
+        }
+
+        private void CheckFunctionCallArgsForEqualCount(
+            LatteParser.FunctionDefContext fDef,
+            LatteParser.EFunCallContext fCall)
+        {
+            var id = fCall.ID().GetText();
             
+            for (int i = 0; i < fCall.expr().Length; i++)
+            {
+                var paramType = fDef.arg().type()[i];
+                var paramId = fDef.arg().ID()[i];
+                var argType = VisitExpr(fCall.expr()[i]);
+
+                if (paramType != argType)
+                {
+                    _errorState.AddErrorMessage(new ErrorMessage(
+                        fCall.start.Line,
+                        argType.start.Column,
+                        ErrorMessages.WrongArgTypeFuncCall(id, paramId.GetText(), paramType.GetText())));
+                }
+            }
         }
 
         private void InterruptWithMessage(int line, string message)
