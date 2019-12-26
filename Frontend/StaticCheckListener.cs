@@ -121,7 +121,21 @@ namespace Frontend
 
         public override void EnterCond(LatteParser.CondContext context)
         {
-            base.EnterCond(context);
+            _environment.DetachVarEnv();
+
+            var exprType = new ExpressionTypeVisitor().Visit(context.expr());
+            if (!exprType.Equals(new LatteParser.TBoolContext()))
+            {
+                _errorState.AddErrorMessage(new ErrorMessage(
+                    context.expr().start.Line,
+                    context.expr().start.Line,
+                    ErrorMessages.IfWrongCondition));
+            }
+        }
+
+        public override void ExitCond(LatteParser.CondContext context)
+        {
+            _environment.RestorePreviousVarEnv();
         }
 
         public override void EnterCondElse(LatteParser.CondElseContext context)
