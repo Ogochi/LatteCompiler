@@ -45,7 +45,7 @@ namespace Frontend.ContextVisitor
                 Utils.StateUtils.InterruptWithMessage(context.start.Line, ErrorMessages.RelOpToNotInt);
             }
 
-            return lhs;
+            return new LatteParser.TBoolContext();
         }
 
         public override LatteParser.TypeContext VisitETrue(LatteParser.ETrueContext context)
@@ -63,7 +63,7 @@ namespace Frontend.ContextVisitor
                 Utils.StateUtils.InterruptWithMessage(context.start.Line, ErrorMessages.LogicOpToNotBool);
             }
 
-            return lhs;
+            return new LatteParser.TBoolContext();
         }
 
         public override LatteParser.TypeContext VisitEInt(LatteParser.EIntContext context)
@@ -80,7 +80,7 @@ namespace Frontend.ContextVisitor
                 Utils.StateUtils.InterruptWithMessage(context.start.Line, ErrorMessages.UnaryOpToNotInt);
             }
 
-            return expr;
+            return new LatteParser.TIntContext();
         }
 
         public override LatteParser.TypeContext VisitEStr(LatteParser.EStrContext context)
@@ -103,7 +103,7 @@ namespace Frontend.ContextVisitor
                 Utils.StateUtils.InterruptWithMessage(context.start.Line, ErrorMessages.ArithmeticOpToNotInt);
             }
 
-            return lhs;
+            return new LatteParser.TIntContext();
         }
 
         public override LatteParser.TypeContext VisitEAnd(LatteParser.EAndContext context)
@@ -116,7 +116,7 @@ namespace Frontend.ContextVisitor
                 Utils.StateUtils.InterruptWithMessage(context.start.Line, ErrorMessages.LogicOpToNotBool);
             }
 
-            return lhs;
+            return new LatteParser.TBoolContext();
         }
 
         public override LatteParser.TypeContext VisitEObjectField(LatteParser.EObjectFieldContext context)
@@ -139,7 +139,7 @@ namespace Frontend.ContextVisitor
                 Utils.StateUtils.InterruptWithMessage(context.start.Line, ErrorMessages.ArithmeticOpToNotInt);
             }
 
-            return lhs;
+            return new LatteParser.TIntContext();
         }
 
         public override LatteParser.TypeContext VisitENull(LatteParser.ENullContext context)
