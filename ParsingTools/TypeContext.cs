@@ -21,7 +21,7 @@ namespace ParsingTools
             throw new System.NotImplementedException();
         }
 
-        public static bool operator ==(ParsingTools.TypeContext t1, ParsingTools.TypeContext t2)
+        public static bool operator==(ParsingTools.TypeContext t1, ParsingTools.TypeContext t2)
         {
             return t1?.Equals(t2) ?? ReferenceEquals(t2, null);
         }

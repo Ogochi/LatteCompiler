@@ -43,7 +43,7 @@ namespace Frontend.ContextVisitor
 
         public override LatteParser.TypeContext VisitETrue(LatteParser.ETrueContext context)
         {
-            return base.VisitETrue(context);
+            return new TBoolContext();
         }
 
         public override LatteParser.TypeContext VisitEOr(LatteParser.EOrContext context)
@@ -53,7 +53,7 @@ namespace Frontend.ContextVisitor
 
         public override LatteParser.TypeContext VisitEInt(LatteParser.EIntContext context)
         {
-            return base.VisitEInt(context);
+            return new TIntContext();
         }
 
         public override LatteParser.TypeContext VisitEUnOp(LatteParser.EUnOpContext context)
@@ -63,12 +63,12 @@ namespace Frontend.ContextVisitor
 
         public override LatteParser.TypeContext VisitEStr(LatteParser.EStrContext context)
         {
-            return base.VisitEStr(context);
+            return new TStringContext();
         }
 
         public override LatteParser.TypeContext VisitEMethodCall(LatteParser.EMethodCallContext context)
         {
-            return base.VisitEMethodCall(context);
+            throw new NotImplementedException();
         }
 
         public override LatteParser.TypeContext VisitEMulOp(LatteParser.EMulOpContext context)
@@ -83,17 +83,12 @@ namespace Frontend.ContextVisitor
 
         public override LatteParser.TypeContext VisitEObjectField(LatteParser.EObjectFieldContext context)
         {
-            return base.VisitEObjectField(context);
-        }
-
-        public override LatteParser.TypeContext VisitEParen(LatteParser.EParenContext context)
-        {
-            return base.VisitEParen(context);
+            throw new NotImplementedException();
         }
 
         public override LatteParser.TypeContext VisitEFalse(LatteParser.EFalseContext context)
         {
-            return base.VisitEFalse(context);
+            return new TBoolContext();
         }
 
         public override LatteParser.TypeContext VisitEAddOp(LatteParser.EAddOpContext context)
@@ -103,12 +98,12 @@ namespace Frontend.ContextVisitor
 
         public override LatteParser.TypeContext VisitENull(LatteParser.ENullContext context)
         {
-            return base.VisitENull(context);
+            throw new NotImplementedException();
         }
 
         public override LatteParser.TypeContext VisitENewObject(LatteParser.ENewObjectContext context)
         {
-            return base.VisitENewObject(context);
+            throw new NotImplementedException();
         }
 
         private void ValidateFunctionCall(LatteParser.FunctionDefContext fDef, LatteParser.EFunCallContext fCall)
