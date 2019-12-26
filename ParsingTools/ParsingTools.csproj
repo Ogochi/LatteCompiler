@@ -44,11 +44,8 @@
         <Reference Include="System.Xml" />
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="LatteParser.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
-        <Compile Include="TBoolContext.cs" />
-        <Compile Include="TIntContext.cs" />
-        <Compile Include="TStringContext.cs" />
-        <Compile Include="TypeContext.cs" />
     </ItemGroup>
     <ItemGroup>
       <None Include="packages.config" />
