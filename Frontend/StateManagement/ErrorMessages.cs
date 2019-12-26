@@ -21,5 +21,7 @@ namespace Frontend.StateManagement
         public static string DecrOnlyOnInt(string id) => $"Tried to decrement '{id}', which is not integer variable.";
         public static string IncrOnlyOnInt(string id) => $"Tried to increment '{id}', which is not integer variable.";
         public static string WhileWrongCondition = "While condition can be only boolean expression.";
+        public static string WrongReturn(string badType, string goodType, string funcId) => 
+            $"Tried to return expression of type '{badType}' in function '{funcId}' with type '{goodType}'.";
     }
 }

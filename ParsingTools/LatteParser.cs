@@ -33,5 +33,10 @@ namespace ParsingTools
         {
             public TBoolContext() {}
         }
+
+        public partial class TVoidContext
+        {
+            public TVoidContext() {}
+        }
     }
 }

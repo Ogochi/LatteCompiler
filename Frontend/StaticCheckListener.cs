@@ -40,7 +40,7 @@ namespace Frontend
         public override void EnterFunctionDef(LatteParser.FunctionDefContext context)
         {
             _environment.DetachVarEnv();
-            _environment.CurrentFunction = context.ID().GetText();
+            _environment.CurrentFunctionName = context.ID().GetText();
 
             if (context.arg() == null)
             {
@@ -104,7 +104,19 @@ namespace Frontend
 
         public override void EnterRet(LatteParser.RetContext context)
         {
-            base.EnterRet(context);
+            var func = _environment.CurrentFunction;
+            var exprType = new ExpressionTypeVisitor().Visit(context.expr());
+            
+            if (!func.type().Equals(exprType))
+            {
+                _errorState.AddErrorMessage(new ErrorMessage(
+                    context.start.Line,
+                    context.start.Column,
+                    ErrorMessages.WrongReturn(
+                        exprType.GetType().ToString(),
+                        func.type().GetType().ToString(),
+                        func.ID().GetText())));
+            }
         }
 
         public override void EnterCond(LatteParser.CondContext context)
@@ -119,7 +131,17 @@ namespace Frontend
 
         public override void EnterVRet(LatteParser.VRetContext context)
         {
-            base.EnterVRet(context);
+            var func = _environment.CurrentFunction;
+            if (!func.type().Equals(new LatteParser.TVoidContext()))
+            {
+                _errorState.AddErrorMessage(new ErrorMessage(
+                    context.start.Line,
+                    context.start.Column,
+                    ErrorMessages.WrongReturn(
+                        new LatteParser.TVoidContext().GetType().ToString(),
+                        func.type().GetType().ToString(),
+                        func.ID().GetText())));
+            }
         }
 
         public override void EnterDecl(LatteParser.DeclContext context)
