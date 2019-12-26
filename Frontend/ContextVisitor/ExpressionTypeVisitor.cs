@@ -183,7 +183,7 @@ namespace Frontend.ContextVisitor
                 var paramId = fDef.arg().ID()[i];
                 var argType = VisitExpr(fCall.expr()[i]);
 
-                if (paramType != argType)
+                if (paramType.Equals(argType))
                 {
                     _errorState.AddErrorMessage(new ErrorMessage(
                         fCall.start.Line,
