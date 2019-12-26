@@ -17,5 +17,6 @@ namespace Frontend.StateManagement
         public static string LogicOpToNotBool = "Logic operators can be used only with boolean values.";
         public static string ArithmeticOpToNotInt = "Arithmetic operators can be used only with integer values.";
         public static string UnaryOpToNotInt = "Unary minus operator can be applied only to integer value.";
+        public static string VarExprTypesMismatch(string id) => $"Types mismatch for variable '{id}' and assigned expression.";
     }
 }

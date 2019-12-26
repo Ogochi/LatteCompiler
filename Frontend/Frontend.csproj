@@ -50,6 +50,7 @@
         <Compile Include="StateManagement\FrontendEnvironment.cs" />
         <Compile Include="StateManagement\VarDef.cs" />
         <Compile Include="StaticCheckListener.cs" />
+        <Compile Include="Utils\StateUtils.cs" />
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\Common\Common.csproj">

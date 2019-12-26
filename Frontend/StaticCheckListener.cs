@@ -3,6 +3,7 @@ using System.Linq;
 using Frontend.StateManagement;
 using Common.StateManagement;
 using Frontend.ContextVisitor;
+using Frontend.Utils;
 using ParsingTools;
 
 namespace Frontend
@@ -79,8 +80,26 @@ namespace Frontend
 
         public override void EnterAss(LatteParser.AssContext context)
         {
-            var v = new ExpressionTypeVisitor();
-            v.Visit(context.expr());
+            var id = context.ID().GetText();
+
+            if (!_environment.NameToVarDef.ContainsKey(id))
+            {
+                StateUtils.InterruptWithMessage(
+                    context.start.Line,
+                    context.ID().Symbol.Column,
+                    ErrorMessages.VarNotDefined(id));
+            }
+
+            var variable = _environment.NameToVarDef[id];
+            var exprType = new ExpressionTypeVisitor().Visit(context.expr());
+
+            if (!variable.Type.Equals(exprType))
+            {
+                StateUtils.InterruptWithMessage(
+                    context.start.Line,
+                    context.ID().Symbol.Column,
+                    ErrorMessages.VarExprTypesMismatch(id));
+            }
         }
 
         public override void EnterRet(LatteParser.RetContext context)
