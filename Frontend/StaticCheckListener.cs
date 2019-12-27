@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Net.NetworkInformation;
 using Frontend.StateManagement;
 using Common.StateManagement;
 using Frontend.ContextVisitor;
@@ -42,6 +43,14 @@ namespace Frontend
         {
             _environment.DetachVarEnv();
             _environment.CurrentFunctionName = context.ID().GetText();
+            
+            if (!context.type().Equals(new LatteParser.TVoidContext()) &&
+                !new ReturnsCheckVisitor().Visit(context.block()))
+            {
+                _errorState.AddErrorMessage(new ErrorMessage(
+                    context.start.Line,
+                    ErrorMessages.FunctionBranchWithoutRet(_environment.CurrentFunctionName)));
+            }
 
             if (context.arg() == null)
             {
