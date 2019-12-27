@@ -12,7 +12,8 @@ namespace Frontend
     {
         private readonly FrontendEnvironment _environment = FrontendEnvironment.Instance;
         private readonly ErrorState _errorState = ErrorState.Instance;
-        
+        private bool _skipNextDecl;
+
         public override void EnterProgram(LatteParser.ProgramContext context)
         {
             context.topDef().ToList().ForEach(topDef =>
@@ -140,7 +141,25 @@ namespace Frontend
 
         public override void EnterCondElse(LatteParser.CondElseContext context)
         {
-            base.EnterCondElse(context);
+            _environment.DetachVarEnv();
+            if (context.stmt()[0] is LatteParser.DeclContext)
+            {
+                _skipNextDecl = true;
+            }
+
+            var exprType = new ExpressionTypeVisitor().Visit(context.expr());
+            if (!exprType.Equals(new LatteParser.TBoolContext()))
+            {
+                _errorState.AddErrorMessage(new ErrorMessage(
+                    context.expr().start.Line,
+                    context.expr().start.Line,
+                    ErrorMessages.IfWrongCondition));
+            }
+        }
+        
+        public override void ExitCondElse(LatteParser.CondElseContext context)
+        {
+            _environment.RestorePreviousVarEnv();
         }
 
         public override void EnterVRet(LatteParser.VRetContext context)
@@ -171,8 +190,15 @@ namespace Frontend
                         decl.start.Column,
                         ErrorMessages.VarAlreadyDefined(id)));
                 }
-                
-                _environment.NameToVarDef[id] = new VarDef(context.type(), id);
+
+                if (_skipNextDecl)
+                {
+                    _skipNextDecl = false;
+                }
+                else
+                {
+                    _environment.NameToVarDef[id] = new VarDef(context.type(), id);
+                }
 
                 if (decl.expr() == null) continue;
                 
