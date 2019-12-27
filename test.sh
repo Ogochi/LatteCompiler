@@ -13,13 +13,12 @@ do
    		printf "Test $f failed.\n"
 	fi
 done
-rm $FRONT_TESTS/*.ll
-rm $FRONT_TESTS/*.bc
 
 printf "\n\t---BASE TESTS---\n"
 for f in $BASE_TESTS/*.lat
 do
-	./latc_llvm $f > out.tmp
+	./latc_llvm $f
+	lli ${f: : -4}.bc > out.tmp 2> /dev/null
 
 	DIFF=$(diff out.tmp ${f: : -4}.output)
         if [ "$DIFF" != "" ]
