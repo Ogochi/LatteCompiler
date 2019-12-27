@@ -11,12 +11,16 @@ namespace Frontend.StateManagement
             $"Function '{id}' has been called with wrong number of arguments.";
 
         public static string WrongArgTypeFuncCall(string funcId, string paramId, string paramType) =>
-            $"Function '{funcId}' has been called with argument of type other than '{paramType}' for parameter '{paramId}.'";
+            $"Function '{funcId}' has been called with argument of type other than '{paramType}' for parameter '{paramId}'.";
 
         public static string CompOpToNotInt = "Comparing operators can be used only with integer values.";
         public static string EqOpWrongTypes = "Equality operators can be used only with values of the same type.";
         public static string LogicOpToNotBool = "Logic operators can be used only with boolean values.";
-        public static string ArithmeticOpToNotInt = "Arithmetic operators can be used only with integer values.";
+        public static string MinusOpToNotInt = "Minus operator can be used only with integer values.";
+        public static string AddOpWrongType = "Add operator can be used only with integer or string values.";
+
+        public static string MulOpToNotInt =
+            "Multiply, division and modulo operators cane be used only with integer values.";
         public static string UnaryMinusToNotInt = "Unary minus operator can be applied only to integer value.";
         public static string UnaryNegToNotBool = "Unary negation operator can be applied only to boolean value.";
         public static string VarExprTypesMismatch(string id) => $"Types mismatch for variable '{id}' and assigned expression.";

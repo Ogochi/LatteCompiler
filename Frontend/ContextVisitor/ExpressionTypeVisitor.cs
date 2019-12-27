@@ -105,7 +105,7 @@ namespace Frontend.ContextVisitor
                     }
                     return new LatteParser.TBoolContext();
                 default:
-                    throw new NotImplementedException();
+                    throw new NotSupportedException();
             }
         }
 
@@ -119,6 +119,11 @@ namespace Frontend.ContextVisitor
             throw new NotImplementedException();
         }
 
+        public override LatteParser.TypeContext VisitEParen(LatteParser.EParenContext context)
+        {
+            return Visit(context.expr());
+        }
+
         public override LatteParser.TypeContext VisitEMulOp(LatteParser.EMulOpContext context)
         {
             var lhs = Visit(context.expr()[0]);
@@ -126,7 +131,7 @@ namespace Frontend.ContextVisitor
 
             if (!lhs.Equals(rhs) || !lhs.Equals(new LatteParser.TIntContext()))
             {
-                Utils.StateUtils.InterruptWithMessage(context.start.Line, ErrorMessages.ArithmeticOpToNotInt);
+                Utils.StateUtils.InterruptWithMessage(context.start.Line, ErrorMessages.MulOpToNotInt);
             }
 
             return new LatteParser.TIntContext();
@@ -160,12 +165,24 @@ namespace Frontend.ContextVisitor
             var lhs = Visit(context.expr()[0]);
             var rhs = Visit(context.expr()[1]);
 
-            if (!lhs.Equals(rhs) || !lhs.Equals(new LatteParser.TIntContext()))
+            switch (context.addOp())
             {
-                Utils.StateUtils.InterruptWithMessage(context.start.Line, ErrorMessages.ArithmeticOpToNotInt);
+                case LatteParser.PlusContext _:
+                    if (!lhs.Equals(rhs) || 
+                        (!lhs.Equals(new LatteParser.TIntContext()) && !lhs.Equals(new LatteParser.TStringContext())))
+                    {
+                        Utils.StateUtils.InterruptWithMessage(context.start.Line, ErrorMessages.AddOpWrongType);
+                    }
+                    return lhs;
+                case LatteParser.MinusContext _:
+                    if (!lhs.Equals(rhs) || !lhs.Equals(new LatteParser.TIntContext()))
+                    {
+                        Utils.StateUtils.InterruptWithMessage(context.start.Line, ErrorMessages.MinusOpToNotInt);
+                    }
+                    return new LatteParser.TIntContext();
+                default:
+                    throw new NotSupportedException();
             }
-
-            return new LatteParser.TIntContext();
         }
 
         public override LatteParser.TypeContext VisitENull(LatteParser.ENullContext context)
@@ -205,15 +222,16 @@ namespace Frontend.ContextVisitor
             
             for (int i = 0; i < fCall.expr().Length; i++)
             {
+                
                 var paramType = fDef.arg().type()[i];
                 var paramId = fDef.arg().ID()[i];
-                var argType = VisitExpr(fCall.expr()[i]);
+                var argType = Visit(fCall.expr()[i]);
 
-                if (paramType.Equals(argType))
+                if (!paramType.Equals(argType))
                 {
                     _errorState.AddErrorMessage(new ErrorMessage(
                         fCall.start.Line,
-                        argType.start.Column,
+                        fCall.expr()[i].start.Column,
                         ErrorMessages.WrongArgTypeFuncCall(id, paramId.GetText(), paramType.GetText())));
                 }
             }
