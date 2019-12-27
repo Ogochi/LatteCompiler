@@ -11,7 +11,7 @@ namespace ParsingTools
                 if (ReferenceEquals(null, obj)) return false;
                 if (ReferenceEquals(this, obj)) return true;
                 if (obj.GetType() != GetType()) return false;
-
+            
                 if (obj is TTypeNameContext context)
                 {
                     return (this as TTypeNameContext).ID().GetText() == context.ID().GetText();
@@ -28,21 +28,56 @@ namespace ParsingTools
         public partial class TStringContext
         {
             public TStringContext() {}
+
+            public override string GetText()
+            {
+                return "string";
+            }
         }
         
         public partial class TIntContext
         {
             public TIntContext() {}
+            
+            public override string GetText()
+            {
+                return "int";
+            }
         }
 
         public partial class TBoolContext
         {
             public TBoolContext() {}
+            
+            public override string GetText()
+            {
+                return "bool";
+            }
         }
 
         public partial class TVoidContext
         {
             public TVoidContext() {}
+            
+            public override string GetText()
+            {
+                return "void";
+            }
+        }
+
+        public partial class TTypeNameContext
+        {
+            private readonly string _typeName;
+            
+            public TTypeNameContext(string typeName)
+            {
+                _typeName = typeName;
+            }
+            
+            public override string GetText()
+            {
+                return _typeName;
+            }
         }
     }
 }

@@ -197,7 +197,7 @@ namespace Frontend.ContextVisitor
             throw new NotImplementedException();
         }
 
-        private void ValidateFunctionCall(FunctionDef fDef, LatteParser.EFunCallContext fCall)
+        public void ValidateFunctionCall(FunctionDef fDef, LatteParser.EFunCallContext fCall)
         {
             var id = fCall.ID().GetText();
 

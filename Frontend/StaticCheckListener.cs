@@ -41,6 +41,11 @@ namespace Frontend
             });
         }
 
+        public override void EnterSExp(LatteParser.SExpContext context)
+        {
+            new ExpressionTypeVisitor().Visit(context.expr());
+        }
+
         public override void EnterFunctionDef(LatteParser.FunctionDefContext context)
         {
             _environment.DetachVarEnv();

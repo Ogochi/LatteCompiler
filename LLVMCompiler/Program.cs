@@ -21,6 +21,34 @@ namespace LLVMCompiler
          */
         public static int Main(string[] args)
         {
+            //return RunProgramFromString("int main() {int x;printInt(x);return 0;}");
+            return RunProgramFromArgs(args);
+        }
+
+        private static int RunProgramFromString(string programToCompile)
+        {
+            if (!ParseAndCompileFile(new AntlrInputStream(programToCompile), out var compilationResult))
+            {
+                Console.Error.WriteLine("\n----\nEncountered parsing errors.\n");
+                return ErrorCode;
+            }
+
+            var errorState = ErrorState.Instance;
+            if (errorState.isError())
+            {
+                Console.Error.WriteLine(
+                    $"Found {errorState.errorsCount()} error{(errorState.errorsCount() > 1 ? "s" : "")}.\n");
+                errorState.GetErrorText().ForEach(Console.Error.WriteLine);
+
+                return ErrorCode;
+            }
+
+            compilationResult.ForEach(Console.Out.WriteLine);
+            return 0;
+        }
+
+        private static int RunProgramFromArgs(string[] args)
+        {
             if (!AreArgsValid(args))
             {
                 return ErrorCode;
@@ -29,7 +57,7 @@ namespace LLVMCompiler
             var fileName = Path.GetFileNameWithoutExtension(args[0]);
             var filePath = Path.GetDirectoryName(args[0]);
 
-            if (!ParseAndCompileFile(args[0], out var compilationResult))
+            if (!ParseAndCompileFile(new AntlrFileStream(args[0]), out var compilationResult))
             {
                 Console.Error.WriteLine("\n----\nEncountered parsing errors.\n");
                 return ErrorCode;
@@ -77,9 +105,9 @@ namespace LLVMCompiler
         /*
          * Returns "false" on parsing error
          */
-        private static bool ParseAndCompileFile(string fileFullPath, out List<String> compilationResult)
+        private static bool ParseAndCompileFile(ICharStream fileStream, out List<String> compilationResult)
         {
-            var lexer = new LatteLexer(new AntlrFileStream(fileFullPath));
+            var lexer = new LatteLexer(fileStream);
             var parser = new LatteParser(new CommonTokenStream(lexer))
             {
                 BuildParseTree = true
