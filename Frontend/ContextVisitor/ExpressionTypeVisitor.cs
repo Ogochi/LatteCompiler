@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Common.AST;
 using Common.StateManagement;
 using Frontend.StateManagement;
@@ -207,31 +208,22 @@ namespace Frontend.ContextVisitor
                     ErrorMessages.WrongArgsCountFuncCall(id)));
             }
 
-            if (fDef.Args.Count == 0)
-            {
-                return;
-            }
-
             CheckFunctionCallArgsForEqualCount(fDef, fCall);
         }
 
         private void CheckFunctionCallArgsForEqualCount(FunctionDef fDef, LatteParser.EFunCallContext fCall)
         {
             var id = fCall.ID().GetText();
-            
-            for (int i = 0; i < fCall.expr().Length; i++)
-            {
-                
-                var paramType = fDef.Args[i].Type;
-                var paramId = fDef.Args[i].Id;
-                var argType = Visit(fCall.expr()[i]);
 
-                if (!paramType.Equals(argType))
+            var argsWithExpr = fDef.Args.Zip(fCall.expr(), (arg, expr) => (arg, expr));
+            foreach (var (arg, expr) in argsWithExpr)
+            {
+                if (!Visit(expr).Equals(arg.Type))
                 {
                     _errorState.AddErrorMessage(new ErrorMessage(
                         fCall.start.Line,
-                        fCall.expr()[i].start.Column,
-                        ErrorMessages.WrongArgTypeFuncCall(id, paramId, paramType.GetText())));
+                        expr.start.Column,
+                        ErrorMessages.WrongArgTypeFuncCall(id, arg.Id, arg.Type.GetText())));
                 }
             }
         }

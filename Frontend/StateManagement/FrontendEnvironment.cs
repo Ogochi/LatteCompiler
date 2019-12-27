@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Antlr4.Runtime.Misc;
 using Common.AST;
+using Common.StateManagement;
 using ParsingTools;
 
 namespace Frontend.StateManagement
@@ -50,6 +52,15 @@ namespace Frontend.StateManagement
                 case LatteParser.ClassDefContext classDef:
                     throw new NotImplementedException();
             }
+        }
+
+        public void AddPredefinedFunctions()
+        {
+            NameToFunctionDef["printInt"] = PredefinedFunctions.PrintInt;
+            NameToFunctionDef["readInt"] = PredefinedFunctions.ReadInt;
+            NameToFunctionDef["printString"] = PredefinedFunctions.PrintString;
+            NameToFunctionDef["readString"] = PredefinedFunctions.ReadString;
+            NameToFunctionDef["error"] = PredefinedFunctions.Error;
         }
     }
 }

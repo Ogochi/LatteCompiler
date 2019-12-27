@@ -27,5 +27,7 @@ namespace Common.AST
                 Args = idType.Select(x => new Arg(x.type, x.id.GetText())).ToList();
             }
         }
+        
+        public FunctionDef() {}
     }
 }

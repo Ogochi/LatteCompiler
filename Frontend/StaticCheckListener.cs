@@ -17,6 +17,8 @@ namespace Frontend
 
         public override void EnterProgram(LatteParser.ProgramContext context)
         {
+            _environment.AddPredefinedFunctions();
+            
             context.topDef().ToList().ForEach(topDef =>
             {
                 switch (topDef)
