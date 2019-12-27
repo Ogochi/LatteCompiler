@@ -10,7 +10,13 @@ namespace ParsingTools
             {
                 if (ReferenceEquals(null, obj)) return false;
                 if (ReferenceEquals(this, obj)) return true;
-                return obj.GetType() == GetType();
+                if (obj.GetType() != GetType()) return false;
+
+                if (obj is TTypeNameContext context)
+                {
+                    return (this as TTypeNameContext).ID().GetText() == context.ID().GetText();
+                }
+                return true;
             }
 
             public override int GetHashCode()

@@ -33,15 +33,31 @@
         <WarningLevel>4</WarningLevel>
     </PropertyGroup>
     <ItemGroup>
+        <Reference Include="Antlr4.Runtime, Version=4.6.0.0, Culture=neutral, PublicKeyToken=09abb75b9ed49849">
+          <HintPath>..\packages\Antlr4.Runtime.4.6.6\lib\net45\Antlr4.Runtime.dll</HintPath>
+          <Private>True</Private>
+        </Reference>
         <Reference Include="System" />
         <Reference Include="System.Core" />
         <Reference Include="System.Data" />
         <Reference Include="System.Xml" />
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="AST\Arg.cs" />
+        <Compile Include="AST\Block.cs" />
+        <Compile Include="AST\FunctionDef.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
         <Compile Include="StateManagement\ErrorMessage.cs" />
         <Compile Include="StateManagement\ErrorState.cs" />
+    </ItemGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\ParsingTools\ParsingTools.csproj">
+        <Project>{64583d48-f8c5-4b7c-92e9-de82e8106677}</Project>
+        <Name>ParsingTools</Name>
+      </ProjectReference>
+    </ItemGroup>
+    <ItemGroup>
+      <None Include="packages.config" />
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
     <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
