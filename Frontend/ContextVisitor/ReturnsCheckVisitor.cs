@@ -20,12 +20,17 @@ namespace Frontend.ContextVisitor
 
         public override bool VisitCondElse(LatteParser.CondElseContext context)
         {
-            return Visit(context.stmt()[0]) && Visit(context.stmt()[1]);
+            return context.expr() switch
+            {
+                LatteParser.ETrueContext _ => Visit(context.stmt()[0]),
+                LatteParser.EFalseContext _ => Visit(context.stmt()[1]),
+                _ => (Visit(context.stmt()[0]) && Visit(context.stmt()[1]))
+            };
         }
 
         public override bool VisitCond(LatteParser.CondContext context)
         {
-            return false;
+            return (context.expr() is LatteParser.ETrueContext) && Visit(context.stmt());
         }
 
         public override bool VisitWhile(LatteParser.WhileContext context)
