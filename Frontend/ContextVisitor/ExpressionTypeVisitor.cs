@@ -1,4 +1,5 @@
 using System;
+using Common.AST;
 using Common.StateManagement;
 using Frontend.StateManagement;
 using ParsingTools;
@@ -32,7 +33,7 @@ namespace Frontend.ContextVisitor
             var function = _environment.NameToFunctionDef[id];
             ValidateFunctionCall(function, context);
 
-            return function.type();
+            return function.Type;
         }
 
         public override LatteParser.TypeContext VisitERelOp(LatteParser.ERelOpContext context)
@@ -195,18 +196,18 @@ namespace Frontend.ContextVisitor
             throw new NotImplementedException();
         }
 
-        private void ValidateFunctionCall(LatteParser.FunctionDefContext fDef, LatteParser.EFunCallContext fCall)
+        private void ValidateFunctionCall(FunctionDef fDef, LatteParser.EFunCallContext fCall)
         {
             var id = fCall.ID().GetText();
 
-            if ((fDef.arg()?.type().Length ?? 0) != (fCall?.expr().Length ?? 0))
+            if (fDef.Args.Count  != (fCall?.expr().Length ?? 0))
             {
                 _errorState.AddErrorMessage(new ErrorMessage(
                     fCall.start.Line,
                     ErrorMessages.WrongArgsCountFuncCall(id)));
             }
 
-            if (fDef.arg() == null)
+            if (fDef.Args.Count == 0)
             {
                 return;
             }
@@ -214,17 +215,15 @@ namespace Frontend.ContextVisitor
             CheckFunctionCallArgsForEqualCount(fDef, fCall);
         }
 
-        private void CheckFunctionCallArgsForEqualCount(
-            LatteParser.FunctionDefContext fDef,
-            LatteParser.EFunCallContext fCall)
+        private void CheckFunctionCallArgsForEqualCount(FunctionDef fDef, LatteParser.EFunCallContext fCall)
         {
             var id = fCall.ID().GetText();
             
             for (int i = 0; i < fCall.expr().Length; i++)
             {
                 
-                var paramType = fDef.arg().type()[i];
-                var paramId = fDef.arg().ID()[i];
+                var paramType = fDef.Args[i].Type;
+                var paramId = fDef.Args[i].Id;
                 var argType = Visit(fCall.expr()[i]);
 
                 if (!paramType.Equals(argType))
@@ -232,7 +231,7 @@ namespace Frontend.ContextVisitor
                     _errorState.AddErrorMessage(new ErrorMessage(
                         fCall.start.Line,
                         fCall.expr()[i].start.Column,
-                        ErrorMessages.WrongArgTypeFuncCall(id, paramId.GetText(), paramType.GetText())));
+                        ErrorMessages.WrongArgTypeFuncCall(id, paramId, paramType.GetText())));
                 }
             }
         }

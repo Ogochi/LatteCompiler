@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Common.AST;
 using ParsingTools;
 
 namespace Frontend.StateManagement
@@ -9,8 +10,8 @@ namespace Frontend.StateManagement
     {
         private readonly Stack<IDictionary<string, VarDef>> _previousScopeVarDefs  = new Stack<IDictionary<string, VarDef>>();
         
-        public IDictionary<string, LatteParser.FunctionDefContext> NameToFunctionDef { get; private set; } =
-            new Dictionary<string, LatteParser.FunctionDefContext>();
+        public IDictionary<string, FunctionDef> NameToFunctionDef { get; private set; } =
+            new Dictionary<string, FunctionDef>();
         
         public IDictionary<string, VarDef> NameToVarDef { get; private set; } = new Dictionary<string, VarDef>();
 
@@ -20,7 +21,7 @@ namespace Frontend.StateManagement
 
         private FrontendEnvironment() {}
 
-        public LatteParser.FunctionDefContext CurrentFunction => NameToFunctionDef[CurrentFunctionName];
+        public FunctionDef CurrentFunction => NameToFunctionDef[CurrentFunctionName];
         
         public void RestorePreviousVarEnv()
         {
@@ -43,7 +44,7 @@ namespace Frontend.StateManagement
             switch (topDef)
             {
                 case LatteParser.FunctionDefContext functionDef:
-                    NameToFunctionDef[functionDef.ID().GetText()] = functionDef;
+                    NameToFunctionDef[functionDef.ID().GetText()] = new FunctionDef(functionDef);
                     break;
                 
                 case LatteParser.ClassDefContext classDef:
