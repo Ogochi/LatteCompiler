@@ -3,8 +3,8 @@ all:
 	@clang -S -emit-llvm lib/runtime.c -o lib/runtime.ll
 	@llvm-as -o lib/runtime.bc lib/runtime.ll
 	@msbuild
-	@cp LLVMCompiler/bin/Debug/* .
-	@mv LLVMCompiler.exe latc_llvm
+	@cp LatteCompiler/bin/Debug/* .
+	@mv LatteCompiler.exe latc_llvm
 	@chmod +x latc_llvm
 clean:
 	@rm -f latc_*

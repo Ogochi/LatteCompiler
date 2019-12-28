@@ -1,12 +1,14 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LLVMCompiler", "LLVMCompiler\LLVMCompiler.csproj", "{17169F09-17C5-46A5-A100-8B28EBF5C66A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LatteCompiler", "LatteCompiler\LatteCompiler.csproj", "{17169F09-17C5-46A5-A100-8B28EBF5C66A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ParsingTools", "ParsingTools\ParsingTools.csproj", "{64583D48-F8C5-4B7C-92E9-DE82E8106677}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Frontend", "Frontend\Frontend.csproj", "{D68A84E0-C24B-4883-8A58-991B83BE8633}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common", "Common\Common.csproj", "{CCC10A53-137A-4D8D-AE90-F7A6A97DC8B5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LlvmGenerator", "LlvmGenerator\LlvmGenerator.csproj", "{CD38C4B9-78F9-49A6-8B52-EC69035E355D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -30,5 +32,9 @@ Global
 		{CCC10A53-137A-4D8D-AE90-F7A6A97DC8B5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CCC10A53-137A-4D8D-AE90-F7A6A97DC8B5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CCC10A53-137A-4D8D-AE90-F7A6A97DC8B5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CD38C4B9-78F9-49A6-8B52-EC69035E355D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CD38C4B9-78F9-49A6-8B52-EC69035E355D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CD38C4B9-78F9-49A6-8B52-EC69035E355D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CD38C4B9-78F9-49A6-8B52-EC69035E355D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
