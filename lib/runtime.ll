@@ -8,7 +8,37 @@
 	i32  ; String length
 }
 
+define i1 @strEq(%str %s1, %str %s2) {
+entry:
+	%str1 = extractvalue %str %s1, 0
+	%str2 = extractvalue %str %s2, 0
+	%len1 = extractvalue %str %s1, 1
+	%len2 = extractvalue %str %s2, 1
 
+	%isLenEq = icmp eq i32 %len1, %len2
+	br i1 %isLenEq, label %startLoop, label %retFalse
+
+retFalse:
+	ret i1 0
+
+startLoop:
+	%counter = phi i32 [0, %entry], [%nextCounter, %checkLoop]
+	%shouldStop = icmp eq i32 %counter, %len1
+	br i1 %shouldStop, label %retTrue, label %checkLoop
+
+checkLoop:
+	%c1 = getelementptr i8, i8* %str1, i32 %counter
+	%char1 = load i8, i8* %c1
+	%c2 = getelementptr i8, i8* %str2, i32 %counter
+        %char2 = load i8, i8* %c2
+
+	%charEq = icmp eq i8 %char1, %char2
+	%nextCounter = add i32 1, %counter
+	br i1 %charEq, label %startLoop, label %retFalse
+
+retTrue:
+	ret i1 1
+}
 
 
 declare void @exit(i32)
@@ -27,10 +57,9 @@ define void @printInt(i32 %x) {
        ret void
 }
 
-define void @printString(%str* %s) {
-entry:  %r1 = getelementptr %str, %str* %s, i32 0, i32 0
-	%r2 = load i8*, i8** %r1
-	call i32 @puts(i8* %r2)
+define void @printString(%str %s) {
+entry:  %r1 = extractvalue %str %s, 0
+	call i32 @puts(i8* %r1)
 	ret void
 }
 
