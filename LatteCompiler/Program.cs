@@ -119,9 +119,9 @@ namespace LLVMCompiler
                 ParseTreeWalker.Default.Walk(new StaticCheckListener(), program);
             }
             catch (InterruptedStaticCheckException) {}
-            
-            compilationResult = new List<string>() {""}; // TODO - use compiler on program
 
+            compilationResult = LlvmGenerator.LlvmGenerator.Instance.GenerateFromAst(new Common.AST.Program(program));
+            
             return parser.NumberOfSyntaxErrors == 0;
         }
     }

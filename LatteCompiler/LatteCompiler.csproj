@@ -56,6 +56,10 @@
         <Project>{d68a84e0-c24b-4883-8a58-991b83be8633}</Project>
         <Name>Frontend</Name>
       </ProjectReference>
+      <ProjectReference Include="..\LlvmGenerator\LlvmGenerator.csproj">
+        <Project>{cd38c4b9-78f9-49a6-8b52-ec69035e355d}</Project>
+        <Name>LlvmGenerator</Name>
+      </ProjectReference>
       <ProjectReference Include="..\ParsingTools\ParsingTools.csproj">
         <Project>{64583d48-f8c5-4b7c-92e9-de82e8106677}</Project>
         <Name>ParsingTools</Name>
