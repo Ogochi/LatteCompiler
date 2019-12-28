@@ -1,0 +1,19 @@
+using ParsingTools;
+
+namespace Common.AST.Exprs
+{
+    public class Bool : Expr
+    {
+        public bool Value { get; set; }
+
+        public Bool(LatteParser.ETrueContext _)
+        {
+            Value = true;
+        }
+
+        public Bool(LatteParser.EFalseContext _)
+        {
+            Value = false;
+        }
+    }
+}

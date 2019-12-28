@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using Common.AST.Stmts;
 using ParsingTools;
 
 namespace Common.AST
@@ -15,6 +16,7 @@ namespace Common.AST
         {
             Type = context.type();
             Id = context.ID().GetText();
+            Block = new Block(context.block());
 
             var arg = context.arg();
             if (arg == null)
