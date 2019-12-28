@@ -70,3 +70,17 @@ entry:	%res = alloca i32
 	%t2 = load i32, i32* %res
 	ret i32 %t2
 }
+
+define %str @readString() {
+entry:  %ress = alloca %str
+        %ressStr = getelementptr %str, %str* %ress, i32 0, i32 0
+
+        %t1 = getelementptr [3 x i8], [3 x i8]* @d, i32 0, i32 0
+        %len = call i32 (i8*, ...) @scanf(i8* %t1, i8** %ressStr)
+
+	%ressLen = getelementptr %str, %str* %ress, i32 0, i32 1
+	store i32 %len, i32* %ressLen
+
+	%resss = load %str, %str* %ress
+        ret %str %resss
+}
