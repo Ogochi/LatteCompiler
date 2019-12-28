@@ -3,9 +3,23 @@
 @d   = internal constant [3 x i8] c"%d\00"
 @lf  = internal constant [4 x i8] c"%lf\00"	
 
+%str = type {
+	i8*, ; Pointer to the string
+	i32  ; String length
+}
+
+
+
+
+declare void @exit(i32)
 declare i32 @printf(i8*, ...) 
 declare i32 @scanf(i8*, ...)
 declare i32 @puts(i8*)
+
+define void @error() {
+	call void  @exit(i32 1)
+	ret void
+}
 
 define void @printInt(i32 %x) {
        %t0 = getelementptr [4 x i8], [4 x i8]* @dnl, i32 0, i32 0
@@ -13,8 +27,10 @@ define void @printInt(i32 %x) {
        ret void
 }
 
-define void @printString(i8* %s) {
-entry:  call i32 @puts(i8* %s)
+define void @printString(%str* %s) {
+entry:  %r1 = getelementptr %str, %str* %s, i32 0, i32 0
+	%r2 = load i8*, i8** %r1
+	call i32 @puts(i8* %r2)
 	ret void
 }
 
