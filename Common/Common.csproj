@@ -63,6 +63,7 @@
         <Compile Include="AST\Exprs\UnOp.cs" />
         <Compile Include="AST\Exprs\Utils.cs" />
         <Compile Include="AST\FunctionDef.cs" />
+        <Compile Include="AST\FunctionDefPrefixDecorator.cs" />
         <Compile Include="AST\Item.cs" />
         <Compile Include="AST\Program.cs" />
         <Compile Include="AST\Stmts\Ass.cs" />

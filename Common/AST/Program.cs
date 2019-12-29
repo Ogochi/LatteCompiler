@@ -7,7 +7,7 @@ namespace Common.AST
 {
     public class Program
     {
-        public IList<FunctionDef> Functions { get; } = new List<FunctionDef>();
+        public IList<FunctionDef> Functions { get; private set; } = new List<FunctionDef>();
 
         public Program(LatteParser.ProgramContext context)
         {
@@ -24,6 +24,12 @@ namespace Common.AST
                         throw new NotSupportedException();
                 }
             });
+        }
+
+        public Program WithPrefixedFunctions()
+        {
+            Functions = Functions.Select(f => new FunctionDefPrefixDecorator(f)).ToList<FunctionDef>();
+            return this;
         }
     }
 }

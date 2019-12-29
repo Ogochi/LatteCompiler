@@ -8,7 +8,7 @@ namespace Common.AST
     public class FunctionDef
     {
         public LatteParser.TypeContext Type { get; set; }
-        public string Id { get; set; }
+        public virtual string Id { get; set; }
         public Block Block { get; set; }
         public List<Arg> Args { get; set; }
 

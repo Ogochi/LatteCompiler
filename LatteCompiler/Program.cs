@@ -120,7 +120,8 @@ namespace LLVMCompiler
             }
             catch (InterruptedStaticCheckException) {}
 
-            compilationResult = LlvmGenerator.LlvmGenerator.Instance.GenerateFromAst(new Common.AST.Program(program));
+            var programAst = new Common.AST.Program(program).WithPrefixedFunctions();
+            compilationResult = LlvmGenerator.LlvmGenerator.Instance.GenerateFromAst(programAst);
             
             return parser.NumberOfSyntaxErrors == 0;
         }
