@@ -45,6 +45,9 @@
         <Compile Include="Generators\FunctionGenerator.cs" />
         <Compile Include="LlvmGenerator.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />
+        <Compile Include="StateManagement\FunctionGeneratorState.cs" />
+        <Compile Include="StateManagement\FunctionsGlobalState.cs" />
+        <Compile Include="StateManagement\RegisterLabelContext.cs" />
         <Compile Include="Utils\AstToLlvmString.cs" />
     </ItemGroup>
     <ItemGroup>

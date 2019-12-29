@@ -1,19 +1,21 @@
-using System.Collections.Generic;
 using Common.AST;
+using LlvmGenerator.StateManagement;
 
 namespace LlvmGenerator.Generators
 {
     public class FunctionGenerator
     {
-        public List<string> GenerateFromAst(FunctionDef function)
+        private LlvmGenerator _llvmGenerator = LlvmGenerator.Instance;
+        
+        public void GenerateFromAst(FunctionDef function)
         {
-            var result = new List<string>();
-            result.Add(Utils.AstToLlvmString.FunctionHeader(function));
+            var state = new FunctionGeneratorState(function);
+            _llvmGenerator.Emit(Utils.AstToLlvmString.FunctionHeader(function, state));
+            _llvmGenerator.Emit(FunctionGeneratorState.EntryLabel + ":");
             
+            // TODO - generate content
             
-            
-            result.Add("}");
-            return result;
+            _llvmGenerator.Emit("}");
         }
     }
 }

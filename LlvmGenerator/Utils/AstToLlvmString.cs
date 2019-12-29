@@ -1,6 +1,8 @@
 using System;
 using System.Text;
 using Common.AST;
+using LlvmGenerator.Generators;
+using LlvmGenerator.StateManagement;
 using ParsingTools;
 
 namespace LlvmGenerator.Utils
@@ -20,12 +22,12 @@ namespace LlvmGenerator.Utils
             };
         }
 
-        public static string FunctionHeader(FunctionDef function)
+        public static string FunctionHeader(FunctionDef function, FunctionGeneratorState state)
         {
-            return $"define {Type(function.Type)} @{function.Id}({FunctionArgs(function)}) " + "{";
+            return $"define {Type(function.Type)} @{function.Id}({FunctionArgs(function, state)}) " + "{";
         }
 
-        private static string FunctionArgs(FunctionDef function)
+        private static string FunctionArgs(FunctionDef function, FunctionGeneratorState state)
         {
             var result = new StringBuilder();
             if (function.Args.Count == 0)
@@ -45,7 +47,7 @@ namespace LlvmGenerator.Utils
                     result.Append(", ");
                 }
 
-                result.Append($"{Type(arg.Type)} %{arg.Id}");
+                result.Append($"{Type(arg.Type)} %{state.VarToRegister[arg.Id][0].Register}");
             });
 
             return result.ToString();

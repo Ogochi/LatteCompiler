@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Common.AST;
 using LlvmGenerator.Generators;
+using LlvmGenerator.StateManagement;
 
 namespace LlvmGenerator
 {
@@ -25,10 +26,11 @@ namespace LlvmGenerator
 
         public List<string> GenerateFromAst(Program program)
         {
+            FunctionsGlobalState.Instance.AddFunctions(program.Functions);
             EmitExternalFunctionsDeclarations();
 
             var functionGenerator = new FunctionGenerator();
-            program.Functions.ToList().ForEach(function => Emit(functionGenerator.GenerateFromAst(function)));
+            program.Functions.ToList().ForEach(function => functionGenerator.GenerateFromAst(function));
             
             var result = EmittedCode;
             EmittedCode = new List<string>();
