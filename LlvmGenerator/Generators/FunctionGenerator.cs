@@ -12,8 +12,8 @@ namespace LlvmGenerator.Generators
             var state = new FunctionGeneratorState(function);
             _llvmGenerator.Emit(Utils.AstToLlvmString.FunctionHeader(function, state));
             _llvmGenerator.Emit(FunctionGeneratorState.EntryLabel + ":");
-            
-            // TODO - generate content
+
+            new StmtGeneratorVisitor(state).Visit(function.Block);
             
             _llvmGenerator.Emit("}");
         }
