@@ -44,6 +44,7 @@
     </ItemGroup>
     <ItemGroup>
         <Compile Include="AST\Arg.cs" />
+        <Compile Include="AST\BaseAstVisitor.cs" />
         <Compile Include="AST\Exprs\Add.cs" />
         <Compile Include="AST\Exprs\AddOp.cs" />
         <Compile Include="AST\Exprs\And.cs" />

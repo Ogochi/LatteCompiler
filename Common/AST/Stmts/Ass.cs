@@ -13,5 +13,10 @@ namespace Common.AST.Stmts
             Id = context.ID().GetText();
             Expr = Exprs.Utils.ExprFromExprContext(context.expr());
         }
+        
+        public override void Accept(BaseAstVisitor visitor)
+        {
+            visitor.Visit(this);
+        }
     }
 }

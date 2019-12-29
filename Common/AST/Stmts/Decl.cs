@@ -14,5 +14,10 @@ namespace Common.AST.Stmts
             Type = context.type();
             context.item().ToList().ForEach(item => Items.Add(new Item(item)));
         }
+        
+        public override void Accept(BaseAstVisitor visitor)
+        {
+            visitor.Visit(this);
+        }
     }
 }

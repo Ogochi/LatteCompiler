@@ -10,5 +10,10 @@ namespace Common.AST.Stmts
         {
             Id = context.ID().GetText();
         }
+        
+        public override void Accept(BaseAstVisitor visitor)
+        {
+            visitor.Visit(this);
+        }
     }
 }
