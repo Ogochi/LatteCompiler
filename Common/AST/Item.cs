@@ -1,3 +1,4 @@
+using Common.AST.Exprs;
 using ParsingTools;
 
 namespace Common.AST
@@ -5,12 +6,12 @@ namespace Common.AST
     public class Item
     {
         public string Id { get; set; }
-        public LatteParser.ExprContext expr { get; set; }
+        public Expr Expr { get; set; }
 
         public Item(LatteParser.ItemContext context)
         {
             Id = context.ID().GetText();
-            expr = context.expr();
+            Expr = Utils.ExprFromExprContext(context.expr());
         }
     }
 }

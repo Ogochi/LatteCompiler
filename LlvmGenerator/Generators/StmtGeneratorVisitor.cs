@@ -32,7 +32,7 @@ namespace LlvmGenerator.Generators
 
         public override void Visit(Decl decl)
         {
-            
+
         }
         
         public override void Visit(Ass ass)
