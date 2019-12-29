@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Common.AST;
+using LlvmGenerator.Generators;
 
 namespace LlvmGenerator
 {
@@ -26,7 +27,8 @@ namespace LlvmGenerator
         {
             EmitExternalFunctionsDeclarations();
 
-            // TODO - generate
+            var functionGenerator = new FunctionGenerator();
+            program.Functions.ToList().ForEach(function => Emit(functionGenerator.GenerateFromAst(function)));
             
             var result = EmittedCode;
             EmittedCode = new List<string>();
