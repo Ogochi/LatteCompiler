@@ -6,6 +6,11 @@ namespace Common.AST.Exprs
     {
         public string Value { get; set; }
 
+        public Str()
+        {
+            Value = "";
+        }
+
         public Str(LatteParser.EStrContext context)
         {
             Value = context.STR().GetText();

@@ -32,12 +32,14 @@ namespace LlvmGenerator.Generators
 
         public override void Visit(Decl decl)
         {
-
+            decl.Items.ToList().ForEach(item => Visit(new Ass(
+                item.Id, 
+                item.Expr ?? Common.AST.Exprs.Utils.DefaultValueForType(decl.Type))));
         }
         
         public override void Visit(Ass ass)
         {
-            
+
         }
         
         public override void Visit(Ret ret)

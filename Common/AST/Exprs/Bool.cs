@@ -6,6 +6,11 @@ namespace Common.AST.Exprs
     {
         public bool Value { get; set; }
 
+        public Bool()
+        {
+            Value = false;
+        }
+
         public Bool(LatteParser.ETrueContext _)
         {
             Value = true;

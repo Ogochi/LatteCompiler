@@ -7,6 +7,11 @@ namespace Common.AST.Exprs
     {
         public static Expr ExprFromExprContext(LatteParser.ExprContext context)
         {
+            if (context == null)
+            {
+                return null;
+            }
+            
             return context switch
             {
                 LatteParser.EAddOpContext eAddOpContext => new AddOp(eAddOpContext),
@@ -27,6 +32,19 @@ namespace Common.AST.Exprs
                 LatteParser.ETrueContext eTrueContext => new Bool(eTrueContext),
                 LatteParser.EUnOpContext eUnOpContext => new UnOp(eUnOpContext),
                 _ => throw new ArgumentOutOfRangeException(nameof(context))
+            };
+        }
+
+        public static Expr DefaultValueForType(LatteParser.TypeContext type)
+        {
+            return type switch
+            {
+                LatteParser.TBoolContext boolContext => new Bool(),
+                LatteParser.TIntContext intContext => new Int(),
+                LatteParser.TStringContext stringContext => new Str(),
+                LatteParser.TTypeNameContext typeNameContext => throw new NotImplementedException(),
+                LatteParser.TVoidContext voidContext => throw new NotSupportedException(),
+                _ => throw new ArgumentOutOfRangeException(nameof(type))
             };
         }
     }
