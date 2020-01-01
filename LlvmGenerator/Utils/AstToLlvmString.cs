@@ -1,9 +1,7 @@
 using System;
-using System.Linq;
 using System.Text;
 using Common.AST;
 using Common.AST.Exprs;
-using LlvmGenerator.Generators;
 using LlvmGenerator.StateManagement;
 using ParsingTools;
 
@@ -62,7 +60,7 @@ namespace LlvmGenerator.Utils
                 }
                 isFirst = false;
 
-                result.Append($"{Type(arg.Type)} %{state.VarToRegister[arg.Id][0].Register}");
+                result.Append($"{Type(arg.Type)} {state.VarToRegister[arg.Id][0].Register}");
             });
 
             return result.ToString();

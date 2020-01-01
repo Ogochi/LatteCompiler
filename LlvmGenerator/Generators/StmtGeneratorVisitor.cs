@@ -46,7 +46,20 @@ namespace LlvmGenerator.Generators
         
         public override void Visit(Ret ret)
         {
+            string toEmit = "ret ";
+
+            if (ret.Expr == null)
+            {
+                toEmit += "void";
+            }
+            else
+            {
+                var expr = new ExpressionSimplifierVisitor().Visit(ret.Expr);
+                var (exprType, exprResult) = new ExpressionGeneratorVisitor(_state).Visit(expr);
+                toEmit += $"{AstToLlvmString.Type(exprType)} {exprResult.Register}";
+            }
             
+            _llvmGenerator.Emit(toEmit);
         }
     }
 }
