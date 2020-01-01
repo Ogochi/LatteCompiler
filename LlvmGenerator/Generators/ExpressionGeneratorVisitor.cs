@@ -26,7 +26,13 @@ namespace LlvmGenerator.Generators
 
         public override (LatteParser.TypeContext, RegisterLabelContext) Visit(And and)
         {
-            return base.Visit(and);
+            var (_, c1) = Visit(and.Lhs);
+            var (_, c2) = Visit(and.Rhs);
+
+            string nextRegister = _state.NewRegister;
+            _llvmGenerator.Emit($"{nextRegister} = and i1 {c1.Register}, {c2.Register}");
+
+            return (new LatteParser.TBoolContext(), new RegisterLabelContext(nextRegister, null));
         }
 
         public override (LatteParser.TypeContext, RegisterLabelContext) Visit(Bool @bool)
@@ -90,7 +96,13 @@ namespace LlvmGenerator.Generators
 
         public override (LatteParser.TypeContext, RegisterLabelContext) Visit(Or or)
         {
-            return base.Visit(or);
+            var (_, c1) = Visit(or.Lhs);
+            var (_, c2) = Visit(or.Rhs);
+
+            string nextRegister = _state.NewRegister;
+            _llvmGenerator.Emit($"{nextRegister} = or i1 {c1.Register}, {c2.Register}");
+
+            return (new LatteParser.TBoolContext(), new RegisterLabelContext(nextRegister, null));
         }
 
         public override (LatteParser.TypeContext, RegisterLabelContext) Visit(RelOp relOp)
