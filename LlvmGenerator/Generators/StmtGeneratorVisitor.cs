@@ -3,6 +3,7 @@ using System.Linq;
 using Common.AST;
 using Common.AST.Stmts;
 using LlvmGenerator.StateManagement;
+using LlvmGenerator.Utils;
 
 namespace LlvmGenerator.Generators
 {
@@ -27,7 +28,8 @@ namespace LlvmGenerator.Generators
         
         public override void Visit(ExpStmt expStmt)
         {
-            new ExpressionGeneratorVisitor(_state).Visit(expStmt.Expr);
+            var expr = new ExpressionSimplifierVisitor().Visit(expStmt.Expr);
+            new ExpressionGeneratorVisitor(_state).Visit(expr);
         }
 
         public override void Visit(Decl decl)

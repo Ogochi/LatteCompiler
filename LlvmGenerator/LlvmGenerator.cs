@@ -3,6 +3,7 @@ using System.Linq;
 using Common.AST;
 using LlvmGenerator.Generators;
 using LlvmGenerator.StateManagement;
+using ParsingTools;
 
 namespace LlvmGenerator
 {
@@ -27,6 +28,7 @@ namespace LlvmGenerator
         public List<string> GenerateFromAst(Program program)
         {
             FunctionsGlobalState.Instance.AddFunctions(program.Functions);
+            FunctionsGlobalState.Instance.AddFunctions(ExternalFunctions());
             EmitExternalFunctionsDeclarations();
 
             var functionGenerator = new FunctionGenerator();
@@ -49,6 +51,18 @@ namespace LlvmGenerator
                 "declare i32 @strEq(i8*, i8*)",
                 "declare i8* @strConcat(i8*, i8*)"
             });
+        }
+
+        public static List<FunctionDef> ExternalFunctions()
+        {
+            return new List<FunctionDef>
+            {
+                new FunctionDef {Id = "printInt", Args = new List<Arg> {new Arg(new LatteParser.TIntContext(), "")}, Type = new LatteParser.TVoidContext()},
+                new FunctionDef {Id = "printString", Args = new List<Arg> {new Arg(new LatteParser.TStringContext(), "")}, Type = new LatteParser.TVoidContext()},
+                new FunctionDef {Id = "error", Args = new List<Arg>(), Type = new LatteParser.TVoidContext()},
+                new FunctionDef {Id = "readInt", Args = new List<Arg>(), Type = new LatteParser.TIntContext()},
+                new FunctionDef {Id = "readString", Args = new List<Arg>(), Type = new LatteParser.TStringContext()}
+            };
         }
     }
 }

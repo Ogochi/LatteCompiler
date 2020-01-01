@@ -39,7 +39,7 @@ namespace LlvmGenerator.StateManagement
                 VarToRegister.Add(var.Key, var.Value));
         }
 
-        public string NewRegister => $"r{_registerCounter++}";
+        public string NewRegister => $"%r{_registerCounter++}";
         
         public string NewLabel => $"l{_labelCounter++}";
     }
