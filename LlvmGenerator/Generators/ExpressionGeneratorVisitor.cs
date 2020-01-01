@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Text;
 using Common.AST;
@@ -29,7 +30,7 @@ namespace LlvmGenerator.Generators
             var (_, c1) = Visit(and.Lhs);
             var (_, c2) = Visit(and.Rhs);
 
-            string nextRegister = _state.NewRegister;
+            var nextRegister = _state.NewRegister;
             _llvmGenerator.Emit($"{nextRegister} = and i1 {c1.Register}, {c2.Register}");
 
             return (new LatteParser.TBoolContext(), new RegisterLabelContext(nextRegister, null));
@@ -45,7 +46,7 @@ namespace LlvmGenerator.Generators
             FunctionDef function = _globalState.NameToFunction[AstToLlvmString.FunctionName(funCall.Id)];
             
             StringBuilder toEmit = new StringBuilder();
-            string nextRegister = "";
+            var nextRegister = "";
             if (!(function.Type is LatteParser.TVoidContext))
             {
                 nextRegister = _state.NewRegister;
@@ -88,7 +89,7 @@ namespace LlvmGenerator.Generators
             var (_, c1) = Visit(mulOp.Lhs);
             var (_, c2) = Visit(mulOp.Rhs);
 
-            string nextRegister = _state.NewRegister;
+            var nextRegister = _state.NewRegister;
             _llvmGenerator.Emit($"{nextRegister} = {AstToLlvmString.Mul(mulOp.Mul)} i32 {c1.Register}, {c2.Register}");
 
             return (new LatteParser.TIntContext(), new RegisterLabelContext(nextRegister, null));
@@ -99,7 +100,7 @@ namespace LlvmGenerator.Generators
             var (_, c1) = Visit(or.Lhs);
             var (_, c2) = Visit(or.Rhs);
 
-            string nextRegister = _state.NewRegister;
+            var nextRegister = _state.NewRegister;
             _llvmGenerator.Emit($"{nextRegister} = or i1 {c1.Register}, {c2.Register}");
 
             return (new LatteParser.TBoolContext(), new RegisterLabelContext(nextRegister, null));
@@ -117,7 +118,22 @@ namespace LlvmGenerator.Generators
 
         public override (LatteParser.TypeContext, RegisterLabelContext) Visit(UnOp unOp)
         {
-            return base.Visit(unOp);
+            var (_, c) = Visit(unOp.Expr);
+
+            var nextRegister = _state.NewRegister;
+            switch (unOp.Operator)
+            {
+                case Unary.Minus:
+                    _llvmGenerator.Emit($"{nextRegister} = mul i32 {c.Register}, -1");
+                    break;
+                case Unary.Neg:
+                    _llvmGenerator.Emit($"{nextRegister} = xor i1 {c.Register}, 1");
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            return (new LatteParser.TBoolContext(), new RegisterLabelContext(nextRegister, null));
         }
     }
 }
