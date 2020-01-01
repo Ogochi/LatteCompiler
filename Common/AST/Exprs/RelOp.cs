@@ -6,6 +6,10 @@ namespace Common.AST.Exprs
     {
         public Rel Rel { get; set; }
 
+        public RelOp()
+        {
+        }
+
         public RelOp(LatteParser.ERelOpContext context) :
             base(context.expr()[0], context.expr()[1])
         {

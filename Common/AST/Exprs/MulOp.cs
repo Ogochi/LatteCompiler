@@ -6,6 +6,10 @@ namespace Common.AST.Exprs
     {
         public Mul Mul { get; set; }
 
+        public MulOp()
+        {
+        }
+
         public MulOp(LatteParser.EMulOpContext context) : 
             base(context.expr()[0], context.expr()[1])
         {

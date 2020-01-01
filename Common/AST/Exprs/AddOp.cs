@@ -6,6 +6,10 @@ namespace Common.AST.Exprs
     {
         public Add Add { get; set; }
 
+        public AddOp()
+        {
+        }
+
         public AddOp(LatteParser.EAddOpContext context) : 
             base(context.expr()[0], context.expr()[1])
         {

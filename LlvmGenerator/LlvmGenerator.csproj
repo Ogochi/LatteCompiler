@@ -51,6 +51,7 @@
         <Compile Include="StateManagement\FunctionsGlobalState.cs" />
         <Compile Include="StateManagement\RegisterLabelContext.cs" />
         <Compile Include="Utils\AstToLlvmString.cs" />
+        <Compile Include="Utils\ExpressionSimplifierVisitor.cs" />
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\Common\Common.csproj">

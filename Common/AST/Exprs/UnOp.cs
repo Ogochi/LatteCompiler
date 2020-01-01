@@ -7,6 +7,10 @@ namespace Common.AST.Exprs
         public Unary Operator { get; set; }
         public Expr Expr { get; set; }
 
+        public UnOp()
+        {
+        }
+
         public UnOp(LatteParser.EUnOpContext context)
         {
             Operator = context.unOp() switch
