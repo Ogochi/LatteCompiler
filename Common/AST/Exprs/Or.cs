@@ -8,5 +8,10 @@ namespace Common.AST.Exprs
             base(context.expr()[0], context.expr()[1])
         {
         }
+        
+        public override Result Accept<Result>(BaseExprAstVisitor<Result> visitor)
+        {
+            return visitor.Visit(this);
+        }
     }
 }

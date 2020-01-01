@@ -2,7 +2,7 @@ using ParsingTools;
 
 namespace Common.AST.Exprs
 {
-    public class TwoHandOperation : Expr
+    public abstract class TwoHandOperation : Expr
     {
         public Expr Lhs { get; set; }
         public Expr Rhs { get; set; }

@@ -42,6 +42,7 @@
         <Reference Include="System.Xml" />
     </ItemGroup>
     <ItemGroup>
+        <Compile Include="Generators\ExpressionGeneratorVisitor.cs" />
         <Compile Include="Generators\FunctionGenerator.cs" />
         <Compile Include="Generators\StmtGeneratorVisitor.cs" />
         <Compile Include="LlvmGenerator.cs" />

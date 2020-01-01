@@ -17,5 +17,10 @@ namespace Common.AST.Exprs
 
             Expr = Utils.ExprFromExprContext(context.expr());
         }
+        
+        public override Result Accept<Result>(BaseExprAstVisitor<Result> visitor)
+        {
+            return visitor.Visit(this);
+        }
     }
 }

@@ -16,5 +16,10 @@ namespace Common.AST.Exprs
                 LatteParser.ModuloContext _ => Mul.Modulo
             };
         }
+        
+        public override Result Accept<Result>(BaseExprAstVisitor<Result> visitor)
+        {
+            return visitor.Visit(this);
+        }
     }
 }

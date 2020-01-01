@@ -48,6 +48,7 @@
         <Compile Include="AST\Exprs\Add.cs" />
         <Compile Include="AST\Exprs\AddOp.cs" />
         <Compile Include="AST\Exprs\And.cs" />
+        <Compile Include="AST\Exprs\BaseExprAstVisitor.cs" />
         <Compile Include="AST\Exprs\Bool.cs" />
         <Compile Include="AST\Exprs\Expr.cs" />
         <Compile Include="AST\Exprs\FunCall.cs" />

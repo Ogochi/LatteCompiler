@@ -14,5 +14,10 @@ namespace Common.AST.Exprs
             Id = context.ID().GetText();
             context?.expr().ToList().ForEach(expr => Exprs.Add(Utils.ExprFromExprContext(expr)));
         }
+        
+        public override Result Accept<Result>(BaseExprAstVisitor<Result> visitor)
+        {
+            return visitor.Visit(this);
+        }
     }
 }

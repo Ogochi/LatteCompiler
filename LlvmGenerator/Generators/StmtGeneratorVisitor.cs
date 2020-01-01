@@ -27,7 +27,7 @@ namespace LlvmGenerator.Generators
         
         public override void Visit(ExpStmt expStmt)
         {
-            
+            new ExpressionGeneratorVisitor(_state).Visit(expStmt.Expr);
         }
 
         public override void Visit(Decl decl)

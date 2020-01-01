@@ -10,5 +10,10 @@ namespace Common.AST.Exprs
         {
             Id = context.ID().GetText();
         }
+        
+        public override Result Accept<Result>(BaseExprAstVisitor<Result> visitor)
+        {
+            return visitor.Visit(this);
+        }
     }
 }

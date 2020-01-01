@@ -20,5 +20,10 @@ namespace Common.AST.Exprs
         {
             Value = false;
         }
+        
+        public override Result Accept<Result>(BaseExprAstVisitor<Result> visitor)
+        {
+            return visitor.Visit(this);
+        }
     }
 }

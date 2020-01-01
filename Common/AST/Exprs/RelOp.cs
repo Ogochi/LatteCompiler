@@ -19,5 +19,10 @@ namespace Common.AST.Exprs
                 LatteParser.NotEqualsContext _ => Rel.NotEquals
             };
         }
+        
+        public override Result Accept<Result>(BaseExprAstVisitor<Result> visitor)
+        {
+            return visitor.Visit(this);
+        }
     }
 }

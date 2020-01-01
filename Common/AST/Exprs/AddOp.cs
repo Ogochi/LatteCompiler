@@ -15,5 +15,10 @@ namespace Common.AST.Exprs
                 LatteParser.MinusContext _ => Add.Minus
             };
         }
+        
+        public override Result Accept<Result>(BaseExprAstVisitor<Result> visitor)
+        {
+            return visitor.Visit(this);
+        }
     }
 }
