@@ -33,6 +33,11 @@ namespace ParsingTools
             {
                 return "string";
             }
+
+            public override string ToString()
+            {
+                return "string";
+            }
         }
         
         public partial class TIntContext
@@ -40,6 +45,11 @@ namespace ParsingTools
             public TIntContext() {}
             
             public override string GetText()
+            {
+                return "int";
+            }
+            
+            public override string ToString()
             {
                 return "int";
             }
@@ -53,6 +63,11 @@ namespace ParsingTools
             {
                 return "bool";
             }
+            
+            public override string ToString()
+            {
+                return "bool";
+            }
         }
 
         public partial class TVoidContext
@@ -60,6 +75,11 @@ namespace ParsingTools
             public TVoidContext() {}
             
             public override string GetText()
+            {
+                return "void";
+            }
+            
+            public override string ToString()
             {
                 return "void";
             }
@@ -75,6 +95,11 @@ namespace ParsingTools
             }
             
             public override string GetText()
+            {
+                return _typeName;
+            }
+            
+            public override string ToString()
             {
                 return _typeName;
             }

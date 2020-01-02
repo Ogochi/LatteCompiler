@@ -130,8 +130,8 @@ namespace Frontend
                     context.start.Line,
                     context.start.Column,
                     ErrorMessages.WrongReturn(
-                        exprType.GetType().ToString(),
-                        func.Type.GetType().ToString(),
+                        exprType.ToString(),
+                        func.Type.ToString(),
                         func.Id)));
             }
         }
@@ -187,8 +187,8 @@ namespace Frontend
                     context.start.Line,
                     context.start.Column,
                     ErrorMessages.WrongReturn(
-                        new LatteParser.TVoidContext().GetType().ToString(),
-                        func.Type.GetType().ToString(),
+                        new LatteParser.TVoidContext().ToString(),
+                        func.Type.ToString(),
                         func.Id)));
             }
         }
@@ -224,7 +224,7 @@ namespace Frontend
                     StateUtils.InterruptWithMessage(
                         decl.start.Line,
                         decl.start.Column,
-                        ErrorMessages.VarExprTypesMismatch(exprType.GetType() + ", " + context.type().GetType()));
+                        ErrorMessages.VarExprTypesMismatch(exprType + ", " + context.type()));
                 }
             }
         }
