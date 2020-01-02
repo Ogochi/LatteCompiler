@@ -59,13 +59,14 @@ namespace LLVMCompiler
 
             if (!ParseAndCompileFile(new AntlrFileStream(args[0]), out var compilationResult))
             {
-                Console.Error.WriteLine("\n----\nEncountered parsing errors.\n");
+                Console.Error.WriteLine("ERROR");
                 return ErrorCode;
             }
 
             var errorState = ErrorState.Instance;
             if (errorState.isError())
             {
+                Console.Error.WriteLine("ERROR");
                 Console.Error.WriteLine(
                     $"Found {errorState.errorsCount()} error{(errorState.errorsCount() > 1 ? "s" : "")}.\n");
                 errorState.GetErrorText().ForEach(Console.Error.WriteLine);
@@ -82,7 +83,8 @@ namespace LLVMCompiler
             ExecuteBashCommand($"llvm-as -o {fileName}.tmp {compiledFilePath}");
             ExecuteBashCommand($"llvm-link -o {Path.Combine(filePath, fileName)}.bc {fileName}.tmp lib/runtime.bc");
             ExecuteBashCommand($"rm {fileName}.tmp");
-
+            
+            Console.Error.WriteLine("OK");
             return 0;
         }
 
