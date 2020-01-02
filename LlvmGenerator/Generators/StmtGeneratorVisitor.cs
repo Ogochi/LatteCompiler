@@ -55,8 +55,8 @@ namespace LlvmGenerator.Generators
             else
             {
                 var expr = new ExpressionSimplifierVisitor().Visit(ret.Expr);
-                var (exprType, exprResult) = new ExpressionGeneratorVisitor(_state).Visit(expr);
-                toEmit += $"{AstToLlvmString.Type(exprType)} {exprResult.Register}";
+                var exprResult = new ExpressionGeneratorVisitor(_state).Visit(expr);
+                toEmit += $"{AstToLlvmString.Type(exprResult.Type)} {exprResult.Register}";
             }
             
             _llvmGenerator.Emit(toEmit);

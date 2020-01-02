@@ -22,7 +22,7 @@ namespace LlvmGenerator.StateManagement
         {
             function.Args.ForEach(arg => VarToRegister.Add(
                 arg.Id,
-                new List<RegisterLabelContext> {new RegisterLabelContext(NewRegister, EntryLabel)}));
+                new List<RegisterLabelContext> {new RegisterLabelContext(NewRegister, EntryLabel, arg.Type)}));
         }
         
         public void RestorePreviousVarEnv()

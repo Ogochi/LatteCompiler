@@ -1,3 +1,5 @@
+using ParsingTools;
+
 namespace LlvmGenerator.StateManagement
 {
     public class RegisterLabelContext
@@ -5,10 +7,13 @@ namespace LlvmGenerator.StateManagement
         public string Register { get; set; }
         public string Label { get; set; }
         
-        public RegisterLabelContext(string register, string label)
+        public LatteParser.TypeContext Type { get; set; }
+        
+        public RegisterLabelContext(string register, string label, LatteParser.TypeContext type)
         {
             Register = register;
             Label = label;
+            Type = type;
         }
     }
 }

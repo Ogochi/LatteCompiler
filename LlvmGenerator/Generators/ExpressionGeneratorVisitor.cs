@@ -9,7 +9,7 @@ using ParsingTools;
 
 namespace LlvmGenerator.Generators
 {
-    public class ExpressionGeneratorVisitor : BaseExprAstVisitor<(LatteParser.TypeContext, RegisterLabelContext)>
+    public class ExpressionGeneratorVisitor : BaseExprAstVisitor<RegisterLabelContext>
     {
         private LlvmGenerator _llvmGenerator = LlvmGenerator.Instance;
         private FunctionGeneratorState _state;
@@ -20,28 +20,28 @@ namespace LlvmGenerator.Generators
             _state = state;
         }
 
-        public override (LatteParser.TypeContext, RegisterLabelContext) Visit(AddOp addOp)
+        public override RegisterLabelContext Visit(AddOp addOp)
         {
             return base.Visit(addOp);
         }
 
-        public override (LatteParser.TypeContext, RegisterLabelContext) Visit(And and)
+        public override RegisterLabelContext Visit(And and)
         {
-            var (_, c1) = Visit(and.Lhs);
-            var (_, c2) = Visit(and.Rhs);
+            var c1 = Visit(and.Lhs);
+            var c2 = Visit(and.Rhs);
 
             var nextRegister = _state.NewRegister;
             _llvmGenerator.Emit($"{nextRegister} = and i1 {c1.Register}, {c2.Register}");
 
-            return (new LatteParser.TBoolContext(), new RegisterLabelContext(nextRegister, null));
+            return new RegisterLabelContext(nextRegister, null, new LatteParser.TBoolContext());
         }
 
-        public override (LatteParser.TypeContext, RegisterLabelContext) Visit(Bool @bool)
+        public override RegisterLabelContext Visit(Bool @bool)
         {
-            return (new LatteParser.TBoolContext(), new RegisterLabelContext(@bool.Value ? "1" : "0", null));
+            return new RegisterLabelContext(@bool.Value ? "1" : "0", null, new LatteParser.TBoolContext());
         }
 
-        public override (LatteParser.TypeContext, RegisterLabelContext) Visit(FunCall funCall)
+        public override RegisterLabelContext Visit(FunCall funCall)
         {
             var function = _globalState.NameToFunction[AstToLlvmString.FunctionName(funCall.Id)];
             
@@ -63,62 +63,62 @@ namespace LlvmGenerator.Generators
                     toEmit.Append(", ");
                 }
 
-                var (exprType, exprResult) = Visit(expr);
-                toEmit.Append($"{AstToLlvmString.Type(exprType)} {exprResult.Register}");
+                var exprResult = Visit(expr);
+                toEmit.Append($"{AstToLlvmString.Type(exprResult.Type)} {exprResult.Register}");
                 
                 isFirstArg = false;
             }
             
             toEmit.Append(")");
             _llvmGenerator.Emit(toEmit.ToString());
-            return (function.Type, new RegisterLabelContext(nextRegister, null));
+            return new RegisterLabelContext(nextRegister, null, function.Type);
         }
 
-        public override (LatteParser.TypeContext, RegisterLabelContext) Visit(ID id)
+        public override RegisterLabelContext Visit(ID id)
         {
             return base.Visit(id);
         }
 
-        public override (LatteParser.TypeContext, RegisterLabelContext) Visit(Int @int)
+        public override RegisterLabelContext Visit(Int @int)
         {
-            return (new LatteParser.TIntContext(), new RegisterLabelContext(@int.Value.ToString(), null));
+            return new RegisterLabelContext(@int.Value.ToString(), null, new LatteParser.TIntContext());
         }
 
-        public override (LatteParser.TypeContext, RegisterLabelContext) Visit(MulOp mulOp)
+        public override RegisterLabelContext Visit(MulOp mulOp)
         {
-            var (_, c1) = Visit(mulOp.Lhs);
-            var (_, c2) = Visit(mulOp.Rhs);
+            var c1 = Visit(mulOp.Lhs);
+            var c2 = Visit(mulOp.Rhs);
 
             var nextRegister = _state.NewRegister;
             _llvmGenerator.Emit($"{nextRegister} = {AstToLlvmString.Mul(mulOp.Mul)} i32 {c1.Register}, {c2.Register}");
 
-            return (new LatteParser.TIntContext(), new RegisterLabelContext(nextRegister, null));
+            return new RegisterLabelContext(nextRegister, null, new LatteParser.TIntContext());
         }
 
-        public override (LatteParser.TypeContext, RegisterLabelContext) Visit(Or or)
+        public override RegisterLabelContext Visit(Or or)
         {
-            var (_, c1) = Visit(or.Lhs);
-            var (_, c2) = Visit(or.Rhs);
+            var c1 = Visit(or.Lhs);
+            var c2 = Visit(or.Rhs);
 
             var nextRegister = _state.NewRegister;
             _llvmGenerator.Emit($"{nextRegister} = or i1 {c1.Register}, {c2.Register}");
 
-            return (new LatteParser.TBoolContext(), new RegisterLabelContext(nextRegister, null));
+            return new RegisterLabelContext(nextRegister, null, new LatteParser.TBoolContext());
         }
 
-        public override (LatteParser.TypeContext, RegisterLabelContext) Visit(RelOp relOp)
+        public override RegisterLabelContext Visit(RelOp relOp)
         {
             return base.Visit(relOp);
         }
 
-        public override (LatteParser.TypeContext, RegisterLabelContext) Visit(Str str)
+        public override RegisterLabelContext Visit(Str str)
         {
             return base.Visit(str);
         }
 
-        public override (LatteParser.TypeContext, RegisterLabelContext) Visit(UnOp unOp)
+        public override RegisterLabelContext Visit(UnOp unOp)
         {
-            var (_, c) = Visit(unOp.Expr);
+            var c = Visit(unOp.Expr);
 
             var nextRegister = _state.NewRegister;
             switch (unOp.Operator)
@@ -133,7 +133,7 @@ namespace LlvmGenerator.Generators
                     throw new ArgumentOutOfRangeException();
             }
 
-            return (new LatteParser.TBoolContext(), new RegisterLabelContext(nextRegister, null));
+            return new RegisterLabelContext(nextRegister, null, new LatteParser.TBoolContext());
         }
     }
 }
