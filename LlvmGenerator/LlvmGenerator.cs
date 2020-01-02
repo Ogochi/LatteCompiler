@@ -48,7 +48,7 @@ namespace LlvmGenerator
                 "declare void @error()",
                 "declare i32 @readInt()",
                 "declare i8* @readString()",
-                "declare i32 @strEq(i8*, i8*)",
+                "declare i1 @strEq(i8*, i8*)",
                 "declare i8* @strConcat(i8*, i8*)",
                 "declare i8* @mmalloc(i32)"
             });

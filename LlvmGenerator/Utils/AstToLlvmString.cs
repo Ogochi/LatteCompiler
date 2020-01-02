@@ -32,6 +32,19 @@ namespace LlvmGenerator.Utils
             };
         }
 
+        public static string Rel(Rel rel)
+        {
+            return rel switch
+            {
+                Common.AST.Exprs.Rel.LessThan => "lt",
+                Common.AST.Exprs.Rel.LessEquals => "le",
+                Common.AST.Exprs.Rel.GreaterThan => "gt",
+                Common.AST.Exprs.Rel.GreaterEquals => "ge",
+                Common.AST.Exprs.Rel.Equals => "eq",
+                Common.AST.Exprs.Rel.NotEquals => "ne",
+            };
+        }
+
         public static string FunctionName(string Id)
         {
             return $"{(LlvmGenerator.ExternalFunctions().Exists(func => func.Id == Id) ? "" : "f")}{Id}";

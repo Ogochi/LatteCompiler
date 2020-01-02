@@ -1,7 +1,5 @@
 using System;
-using System.Linq;
 using System.Text;
-using Common.AST;
 using Common.AST.Exprs;
 using LlvmGenerator.StateManagement;
 using LlvmGenerator.Utils;
@@ -26,7 +24,7 @@ namespace LlvmGenerator.Generators
             var c2 = Visit(addOp.Rhs);
             var nextRegister = _state.NewRegister;
             
-            switch ((addOp.Add, c1.Type, c2.Type))
+            switch (addOp.Add, c1.Type, c2.Type)
             {
                 case (Add.Plus, LatteParser.TIntContext _, LatteParser.TIntContext _):
                     _llvmGenerator.Emit($"{nextRegister} = add i32 {c1.Register}, {c2.Register}");
@@ -151,7 +149,25 @@ namespace LlvmGenerator.Generators
 
         public override RegisterLabelContext Visit(RelOp relOp)
         {
-            return base.Visit(relOp);
+            var c1 = Visit(relOp.Lhs);
+            var c2 = Visit(relOp.Rhs);
+            var resultRegister = _state.NewRegister;
+            
+            switch (relOp.Rel, c1.Type, c2.Type)
+            {
+                case (Rel.Equals, LatteParser.TStringContext _, LatteParser.TStringContext _):
+                    _llvmGenerator.Emit($"{resultRegister} = call i1 @strEq(i8* {c1.Register}, i8* {c2.Register})");
+                    break;
+                
+                default:
+                    var type = AstToLlvmString.Type(c1.Type);
+                    var compOperation = AstToLlvmString.Rel(relOp.Rel);
+                    _llvmGenerator.Emit(
+                        $"{resultRegister} = icmp {compOperation} {type} {c1.Register}, {c2.Register}");
+                    break;
+            }
+            
+            return new RegisterLabelContext(resultRegister, null, new LatteParser.TBoolContext());
         }
 
         public override RegisterLabelContext Visit(Str str)
