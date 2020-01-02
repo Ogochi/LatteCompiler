@@ -21,6 +21,12 @@ namespace LlvmGenerator.Generators
         public override void Visit(CondElse condElse)
         {
             var expr = new ExpressionSimplifierVisitor().Visit(condElse.Expr);
+            if (expr is Bool b)
+            {
+                Visit(b.Value ? condElse.TBlock : condElse.FBlock);
+                return;
+            }
+
             var exprResult = new ExpressionGeneratorVisitor(_state).Visit(expr);
             
             _state.GoToNextLabel(out var trueLabel);
@@ -42,11 +48,16 @@ namespace LlvmGenerator.Generators
 
         public override void Visit(While @while)
         {
+            var expr = new ExpressionSimplifierVisitor().Visit(@while.Expr);
+            if (expr is Bool b && b.Value == false)
+            {
+                return;
+            }
+            
             _state.GoToNextLabel(out var startWhileLabel);
             _llvmGenerator.Emit($"br label %{startWhileLabel}");
             _llvmGenerator.Emit($"{startWhileLabel}:");
             
-            var expr = new ExpressionSimplifierVisitor().Visit(@while.Expr);
             var exprResult = new ExpressionGeneratorVisitor(_state).Visit(expr);
             
             _state.GoToNextLabel(out var whileLabel);
@@ -65,6 +76,15 @@ namespace LlvmGenerator.Generators
         public override void Visit(Cond cond)
         {
             var expr = new ExpressionSimplifierVisitor().Visit(cond.Expr);
+            if (expr is Bool b)
+            {
+                if (b.Value)
+                {
+                    Visit(cond.Block);
+                }
+                return;
+            }
+            
             var exprResult = new ExpressionGeneratorVisitor(_state).Visit(expr);
             
             _state.GoToNextLabel(out var trueLabel);

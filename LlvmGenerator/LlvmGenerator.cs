@@ -25,6 +25,11 @@ namespace LlvmGenerator
             s.ToList().ForEach(Emit);
         }
 
+        public string LastEmitted()
+        {
+            return EmittedCode.FindLast(a => true);
+        }
+
         public List<string> GenerateFromAst(Program program)
         {
             FunctionsGlobalState.Instance.AddFunctions(program.Functions);
