@@ -43,9 +43,9 @@ namespace LlvmGenerator.Generators
 
         public override (LatteParser.TypeContext, RegisterLabelContext) Visit(FunCall funCall)
         {
-            FunctionDef function = _globalState.NameToFunction[AstToLlvmString.FunctionName(funCall.Id)];
+            var function = _globalState.NameToFunction[AstToLlvmString.FunctionName(funCall.Id)];
             
-            StringBuilder toEmit = new StringBuilder();
+            var toEmit = new StringBuilder();
             var nextRegister = "";
             if (!(function.Type is LatteParser.TVoidContext))
             {
@@ -55,7 +55,7 @@ namespace LlvmGenerator.Generators
 
             toEmit.Append($"call {AstToLlvmString.Type(function.Type)} @{function.Id}(");
 
-            bool isFirstArg = true;
+            var isFirstArg = true;
             foreach (var expr in funCall.Exprs)
             {
                 if (!isFirstArg)
