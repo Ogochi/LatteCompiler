@@ -28,15 +28,15 @@ namespace LlvmGenerator.Generators
             {
                 case (Add.Plus, LatteParser.TIntContext _, LatteParser.TIntContext _):
                     _llvmGenerator.Emit($"{nextRegister} = add i32 {c1.Register}, {c2.Register}");
-                    return new RegisterLabelContext(nextRegister, null, new LatteParser.TIntContext());
+                    return new RegisterLabelContext(nextRegister, _state.CurrentLabel, new LatteParser.TIntContext());
                 
                 case (Add.Minus, LatteParser.TIntContext _, LatteParser.TIntContext _):
                     _llvmGenerator.Emit($"{nextRegister} = sub i32 {c1.Register}, {c2.Register}");
-                    return new RegisterLabelContext(nextRegister, null, new LatteParser.TIntContext());
+                    return new RegisterLabelContext(nextRegister, _state.CurrentLabel, new LatteParser.TIntContext());
                 
                 case (Add.Plus, LatteParser.TStringContext _, LatteParser.TStringContext _):
                     _llvmGenerator.Emit($"{nextRegister} = call i8* @strConcat(i8* {c1.Register}, i8* {c2.Register})");
-                    return new RegisterLabelContext(nextRegister, null, new LatteParser.TStringContext());
+                    return new RegisterLabelContext(nextRegister, _state.CurrentLabel, new LatteParser.TStringContext());
                 
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -51,12 +51,12 @@ namespace LlvmGenerator.Generators
             var nextRegister = _state.NewRegister;
             _llvmGenerator.Emit($"{nextRegister} = and i1 {c1.Register}, {c2.Register}");
 
-            return new RegisterLabelContext(nextRegister, null, new LatteParser.TBoolContext());
+            return new RegisterLabelContext(nextRegister, _state.CurrentLabel, new LatteParser.TBoolContext());
         }
 
         public override RegisterLabelContext Visit(Bool @bool)
         {
-            return new RegisterLabelContext(@bool.Value ? "1" : "0", null, new LatteParser.TBoolContext());
+            return new RegisterLabelContext(@bool.Value ? "1" : "0", _state.CurrentLabel, new LatteParser.TBoolContext());
         }
 
         public override RegisterLabelContext Visit(FunCall funCall)
@@ -89,7 +89,7 @@ namespace LlvmGenerator.Generators
             
             toEmit.Append(")");
             _llvmGenerator.Emit(toEmit.ToString());
-            return new RegisterLabelContext(nextRegister, null, function.Type);
+            return new RegisterLabelContext(nextRegister, _state.CurrentLabel, function.Type);
         }
 
         public override RegisterLabelContext Visit(ID id)
@@ -98,7 +98,7 @@ namespace LlvmGenerator.Generators
 
             if (values.Count == 1)
             {
-                return new RegisterLabelContext(values[0].Register, null, values[0].Type);
+                return new RegisterLabelContext(values[0].Register, _state.CurrentLabel, values[0].Type);
             }
 
             var phi = new StringBuilder();
@@ -117,12 +117,12 @@ namespace LlvmGenerator.Generators
             var nextRegister = _state.NewRegister;
             _llvmGenerator.Emit($"{nextRegister} = phi {values[0].Type} {phi}");
             
-            return new RegisterLabelContext(nextRegister, null, values[0].Type);
+            return new RegisterLabelContext(nextRegister, _state.CurrentLabel, values[0].Type);
         }
 
         public override RegisterLabelContext Visit(Int @int)
         {
-            return new RegisterLabelContext(@int.Value.ToString(), null, new LatteParser.TIntContext());
+            return new RegisterLabelContext(@int.Value.ToString(), _state.CurrentLabel, new LatteParser.TIntContext());
         }
 
         public override RegisterLabelContext Visit(MulOp mulOp)
@@ -133,7 +133,7 @@ namespace LlvmGenerator.Generators
             var nextRegister = _state.NewRegister;
             _llvmGenerator.Emit($"{nextRegister} = {AstToLlvmString.Mul(mulOp.Mul)} i32 {c1.Register}, {c2.Register}");
 
-            return new RegisterLabelContext(nextRegister, null, new LatteParser.TIntContext());
+            return new RegisterLabelContext(nextRegister, _state.CurrentLabel, new LatteParser.TIntContext());
         }
 
         public override RegisterLabelContext Visit(Or or)
@@ -144,7 +144,7 @@ namespace LlvmGenerator.Generators
             var nextRegister = _state.NewRegister;
             _llvmGenerator.Emit($"{nextRegister} = or i1 {c1.Register}, {c2.Register}");
 
-            return new RegisterLabelContext(nextRegister, null, new LatteParser.TBoolContext());
+            return new RegisterLabelContext(nextRegister, _state.CurrentLabel, new LatteParser.TBoolContext());
         }
 
         public override RegisterLabelContext Visit(RelOp relOp)
@@ -167,23 +167,23 @@ namespace LlvmGenerator.Generators
                     break;
             }
             
-            return new RegisterLabelContext(resultRegister, null, new LatteParser.TBoolContext());
+            return new RegisterLabelContext(resultRegister, _state.CurrentLabel, new LatteParser.TBoolContext());
         }
 
         public override RegisterLabelContext Visit(Str str)
         {
-            if (!_state.LiteralToStringConstId.ContainsKey(str.Value))
+            if (!_globalState.LiteralToStringConstId.ContainsKey(str.Value))
             {
-                _state.LiteralToStringConstId[str.Value] = _state.NewString;
+                _globalState.LiteralToStringConstId[str.Value] = _globalState.NewString;
             }
 
-            var nextString = _state.LiteralToStringConstId[str.Value];
+            var nextString = _globalState.LiteralToStringConstId[str.Value];
             var nextRegister = _state.NewRegister;
             var strLen = str.Value.Length + 1;
             _llvmGenerator.Emit(
                 $"{nextRegister} = getelementptr [{strLen} x i8],[{strLen} x i8]* {nextString}, i64 0, i64 0");
             
-            return new RegisterLabelContext(nextRegister, null, new LatteParser.TStringContext());
+            return new RegisterLabelContext(nextRegister, _state.CurrentLabel, new LatteParser.TStringContext());
         }
 
         public override RegisterLabelContext Visit(UnOp unOp)
@@ -203,7 +203,7 @@ namespace LlvmGenerator.Generators
                     throw new ArgumentOutOfRangeException();
             }
 
-            return new RegisterLabelContext(nextRegister, null, new LatteParser.TBoolContext());
+            return new RegisterLabelContext(nextRegister, _state.CurrentLabel, new LatteParser.TBoolContext());
         }
     }
 }
