@@ -13,7 +13,8 @@ namespace Common.AST.Exprs
 
         public Str(LatteParser.EStrContext context)
         {
-            Value = context.STR().GetText();
+            var str = context.STR().GetText();
+            Value = str.Substring(1, str.Length - 2);
         }
         
         public override Result Accept<Result>(BaseExprAstVisitor<Result> visitor)
