@@ -29,6 +29,7 @@ namespace LLVMCompiler
         {
             if (!ParseAndCompileFile(new AntlrInputStream(programToCompile), out var compilationResult))
             {
+                Console.Error.WriteLine("ERROR");
                 Console.Error.WriteLine("\n----\nEncountered parsing errors.\n");
                 return ErrorCode;
             }
@@ -36,6 +37,7 @@ namespace LLVMCompiler
             var errorState = ErrorState.Instance;
             if (errorState.isError())
             {
+                Console.Error.WriteLine("ERROR");
                 Console.Error.WriteLine(
                     $"Found {errorState.errorsCount()} error{(errorState.errorsCount() > 1 ? "s" : "")}.\n");
                 errorState.GetErrorText().ForEach(Console.Error.WriteLine);
@@ -44,6 +46,8 @@ namespace LLVMCompiler
             }
 
             compilationResult.ForEach(Console.Out.WriteLine);
+            
+            Console.Error.WriteLine("OK");
             return 0;
         }
 
@@ -116,6 +120,12 @@ namespace LLVMCompiler
             };
 
             var program = parser.program();
+            if (parser.NumberOfSyntaxErrors != 0)
+            {
+                compilationResult = new List<string>();
+                return false;
+            }
+            
             try
             {
                 ParseTreeWalker.Default.Walk(new StaticCheckListener(), program);
@@ -124,8 +134,8 @@ namespace LLVMCompiler
 
             var programAst = new Common.AST.Program(program).WithPrefixedFunctions();
             compilationResult = LlvmGenerator.LlvmGenerator.Instance.GenerateFromAst(programAst);
-            
-            return parser.NumberOfSyntaxErrors == 0;
+
+            return true;
         }
     }
 }
