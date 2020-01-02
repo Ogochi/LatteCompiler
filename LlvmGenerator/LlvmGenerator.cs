@@ -33,10 +33,21 @@ namespace LlvmGenerator
 
             var functionGenerator = new FunctionGenerator();
             program.Functions.ToList().ForEach(function => functionGenerator.GenerateFromAst(function));
+
+            EmitStringConsts();
             
             var result = EmittedCode;
             EmittedCode = new List<string>();
+
             return result;
+        }
+
+        private void EmitStringConsts()
+        {
+            foreach (var item in FunctionsGlobalState.Instance.LiteralToStringConstId)
+            {
+                Emit($"{item.Value} = private constant [{item.Key.Length + 1} x i8] c\"{item.Key}\\00\"");
+            }
         }
 
         private void EmitExternalFunctionsDeclarations()

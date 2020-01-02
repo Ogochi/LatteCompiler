@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Common.AST;
@@ -11,12 +10,56 @@ namespace LlvmGenerator.Generators
 {
     public class StmtGeneratorVisitor : BaseAstVisitor
     {
-        private LlvmGenerator _llvmGenerator = LlvmGenerator.Instance;
-        private FunctionGeneratorState _state;
+        private readonly LlvmGenerator _llvmGenerator = LlvmGenerator.Instance;
+        private readonly FunctionGeneratorState _state;
         
         public StmtGeneratorVisitor(FunctionGeneratorState state)
         {
             _state = state;
+        }
+
+        public override void Visit(CondElse condElse)
+        {
+            var expr = new ExpressionSimplifierVisitor().Visit(condElse.Expr);
+            var exprResult = new ExpressionGeneratorVisitor(_state).Visit(expr);
+            
+            _state.GoToNextLabel(out var trueLabel);
+            string falseLabel = _state.NewLabel, endIfLabel = _state.NewLabel;
+            _llvmGenerator.Emit($"br i1 {exprResult.Register}, label %{trueLabel}, label %{falseLabel}");
+            
+            _llvmGenerator.Emit($"{trueLabel}:");
+            Visit(condElse.TBlock);
+            _llvmGenerator.Emit($"br label %{endIfLabel}");
+            
+            _state.CurrentLabel = falseLabel;
+            _llvmGenerator.Emit($"{falseLabel}:");
+            Visit(condElse.FBlock);
+            _llvmGenerator.Emit($"br label %{endIfLabel}");
+            
+            _state.CurrentLabel = endIfLabel;
+            _llvmGenerator.Emit($"{endIfLabel}:");
+        }
+
+        public override void Visit(While @while)
+        {
+            _state.GoToNextLabel(out var startWhileLabel);
+            _llvmGenerator.Emit($"br label %{startWhileLabel}");
+            _llvmGenerator.Emit($"{startWhileLabel}:");
+            
+            var expr = new ExpressionSimplifierVisitor().Visit(@while.Expr);
+            var exprResult = new ExpressionGeneratorVisitor(_state).Visit(expr);
+            
+            _state.GoToNextLabel(out var whileLabel);
+            var endWhileLabel = _state.NewLabel;
+            _llvmGenerator.Emit($"br i1 {exprResult.Register}, label %{whileLabel}, label %{endWhileLabel}");
+            
+            _llvmGenerator.Emit($"{whileLabel}:");
+            Visit(@while.Block);
+            _llvmGenerator.Emit($"br label %{startWhileLabel}");
+
+            _state.CurrentLabel = endWhileLabel;
+            _llvmGenerator.Emit($"{endWhileLabel}:");
+            _llvmGenerator.Emit($"br label %{endWhileLabel}");
         }
 
         public override void Visit(Cond cond)
@@ -26,12 +69,12 @@ namespace LlvmGenerator.Generators
             
             _state.GoToNextLabel(out var trueLabel);
             var falseLabel = _state.NewLabel;
-
             _llvmGenerator.Emit($"br i1 {exprResult.Register}, label %{trueLabel}, label %{falseLabel}");
+            
             _llvmGenerator.Emit($"{trueLabel}:");
             Visit(cond.Block);
-            
             _llvmGenerator.Emit($"br label %{falseLabel}");
+            
             _state.CurrentLabel = falseLabel;
             _llvmGenerator.Emit($"{falseLabel}:");
         }
@@ -82,7 +125,7 @@ namespace LlvmGenerator.Generators
         
         public override void Visit(Ret ret)
         {
-            string toEmit = "ret ";
+            var toEmit = "ret ";
 
             if (ret.Expr == null)
             {
