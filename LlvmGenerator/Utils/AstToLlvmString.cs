@@ -36,10 +36,10 @@ namespace LlvmGenerator.Utils
         {
             return rel switch
             {
-                Common.AST.Exprs.Rel.LessThan => "lt",
-                Common.AST.Exprs.Rel.LessEquals => "le",
-                Common.AST.Exprs.Rel.GreaterThan => "gt",
-                Common.AST.Exprs.Rel.GreaterEquals => "ge",
+                Common.AST.Exprs.Rel.LessThan => "slt",
+                Common.AST.Exprs.Rel.LessEquals => "sle",
+                Common.AST.Exprs.Rel.GreaterThan => "sgt",
+                Common.AST.Exprs.Rel.GreaterEquals => "sge",
                 Common.AST.Exprs.Rel.Equals => "eq",
                 Common.AST.Exprs.Rel.NotEquals => "ne",
             };
