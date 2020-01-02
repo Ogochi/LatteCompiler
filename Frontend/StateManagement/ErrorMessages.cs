@@ -32,5 +32,6 @@ namespace Frontend.StateManagement
 
         public static string IfWrongCondition = "If condition can be only boolean expression.";
         public static string FunctionBranchWithoutRet(string id) => $"There is an execution branch in function '{id}' without return statement.";
+        public static string VoidDeclaration = "Variable can't be if type 'void'";
     }
 }

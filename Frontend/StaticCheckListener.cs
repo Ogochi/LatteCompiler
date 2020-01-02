@@ -195,6 +195,14 @@ namespace Frontend
 
         public override void EnterDecl(LatteParser.DeclContext context)
         {
+            if (context.type().Equals(new LatteParser.TVoidContext()))
+            {
+                StateUtils.InterruptWithMessage(
+                    context.start.Line,
+                    context.start.Column,
+                    ErrorMessages.VoidDeclaration);
+            }
+            
             foreach (var decl in context.item())
             {
                 var id = decl.ID().GetText();
