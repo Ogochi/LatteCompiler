@@ -115,7 +115,7 @@ namespace LlvmGenerator.Generators
             }
             
             var nextRegister = _state.NewRegister;
-            _llvmGenerator.Emit($"{nextRegister} = phi {values[0].Type} {phi}");
+            _llvmGenerator.Emit($"{nextRegister} = phi {AstToLlvmString.Type(values[0].Type)} {phi}");
             
             return new RegisterLabelContext(nextRegister, _state.CurrentLabel, values[0].Type);
         }
@@ -195,15 +195,13 @@ namespace LlvmGenerator.Generators
             {
                 case Unary.Minus:
                     _llvmGenerator.Emit($"{nextRegister} = mul i32 {c.Register}, -1");
-                    break;
+                    return new RegisterLabelContext(nextRegister, _state.CurrentLabel, new LatteParser.TIntContext());
                 case Unary.Neg:
                     _llvmGenerator.Emit($"{nextRegister} = xor i1 {c.Register}, 1");
-                    break;
+                    return new RegisterLabelContext(nextRegister, _state.CurrentLabel, new LatteParser.TBoolContext());
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-
-            return new RegisterLabelContext(nextRegister, _state.CurrentLabel, new LatteParser.TBoolContext());
         }
     }
 }
