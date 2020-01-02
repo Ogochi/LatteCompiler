@@ -19,14 +19,17 @@ for f in $BASE_TESTS/*.lat
 do
 	./latc_llvm $f
 	lli ${f: : -4}.bc > out.tmp 2> /dev/null
+	LLIRES=$?
 
 	DIFF=$(diff out.tmp ${f: : -4}.output)
-        if [ "$DIFF" != "" ]
+        if [ "$DIFF" != "" ] || [ $LLIRES != 0 ]
         then
                  printf "Test $f failed.\n"
-        fi
+	else
+		printf '\e[1;34m%-6s\e[m\n' "Test $f succeeded!"
+		rm ${f: : -4}.ll
+	fi
 done
-rm $BASE_TESTS/*.ll
 rm $BASE_TESTS/*.bc
 rm out.tmp
 
