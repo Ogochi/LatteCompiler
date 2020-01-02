@@ -96,7 +96,30 @@ namespace LlvmGenerator.Generators
 
         public override RegisterLabelContext Visit(ID id)
         {
-            return base.Visit(id);
+            var values = _state.VarToRegister[id.Id];
+
+            if (values.Count == 1)
+            {
+                return new RegisterLabelContext(values[0].Register, null, values[0].Type);
+            }
+
+            var phi = new StringBuilder();
+            var isFirst = true;
+            foreach (var value in values)
+            {
+                if (!isFirst)
+                {
+                    phi.Append(", ");
+                }
+                isFirst = false;
+
+                phi.Append($"[{value.Register}, %{value.Label}]");
+            }
+            
+            var nextRegister = _state.NewRegister;
+            _llvmGenerator.Emit($"{nextRegister} = phi {values[0].Type} {phi}");
+            
+            return new RegisterLabelContext(nextRegister, null, values[0].Type);
         }
 
         public override RegisterLabelContext Visit(Int @int)

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Common.AST;
 using Common.AST.Stmts;
@@ -41,7 +42,10 @@ namespace LlvmGenerator.Generators
         
         public override void Visit(Ass ass)
         {
+            var expr = new ExpressionSimplifierVisitor().Visit(ass.Expr);
+            var exprResult = new ExpressionGeneratorVisitor(_state).Visit(expr);
 
+            _state.VarToRegister[ass.Id] = new List<RegisterLabelContext> {exprResult};
         }
         
         public override void Visit(Ret ret)
