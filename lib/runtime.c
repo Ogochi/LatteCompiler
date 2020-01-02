@@ -2,17 +2,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-void printInt(int x) {
-    printf("%d\n", x);
-}
-
-int readInt() {
-    int x;
-    scanf("%d", &x);
-
-    return x;
-}
-
 void printString(char *s) {
     puts(s);
 }
@@ -28,6 +17,18 @@ char* readString() {
     }
 
     return result;
+}
+
+void printInt(int x) {
+    printf("%d\n", x);
+}
+
+int readInt() {
+    int x;
+    scanf("%d", &x);
+    readString();
+
+    return x;
 }
 
 void error() {
