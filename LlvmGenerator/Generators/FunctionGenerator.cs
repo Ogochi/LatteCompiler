@@ -16,6 +16,10 @@ namespace LlvmGenerator.Generators
             new StmtGeneratorVisitor(state).Visit(function.Block);
             
             _llvmGenerator.Emit("}");
+            foreach (var item in state.LiteralToStringConstId)
+            {
+                _llvmGenerator.Emit($"{item.Value} = private constant [{item.Key.Length + 1} x i8] c\"{item.Key}\\00\"");
+            }
         }
     }
 }

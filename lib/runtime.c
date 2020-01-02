@@ -59,3 +59,7 @@ char* strConcat(char *s1, char *s2) {
 
     return result;
 }
+
+char* mmalloc(int size) {
+    return malloc(size);
+}

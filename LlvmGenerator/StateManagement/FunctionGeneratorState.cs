@@ -8,6 +8,8 @@ namespace LlvmGenerator.StateManagement
     {
         public Dictionary<string, List<RegisterLabelContext>> VarToRegister { get; private set; } = 
             new Dictionary<string, List<RegisterLabelContext>>();
+        
+        public Dictionary<string, string> LiteralToStringConstId= new Dictionary<string, string>();
 
         public bool HasGeneratedAnything = false;
 
@@ -16,7 +18,7 @@ namespace LlvmGenerator.StateManagement
         private readonly Stack<Dictionary<string, List<RegisterLabelContext>>> _previousScopeVars = 
             new Stack<Dictionary<string, List<RegisterLabelContext>>>();
 
-        private int _registerCounter, _labelCounter;
+        private int _registerCounter, _labelCounter, _stringCounter;
 
         public FunctionGeneratorState(FunctionDef function)
         {
@@ -42,5 +44,7 @@ namespace LlvmGenerator.StateManagement
         public string NewRegister => $"%r{_registerCounter++}";
         
         public string NewLabel => $"l{_labelCounter++}";
+
+        public string NewString => $"@.str{_stringCounter++}";
     }
 }
