@@ -47,6 +47,6 @@ namespace LlvmGenerator.StateManagement
 
         public string NewRegister => $"%r{_registerCounter++}";
 
-        private string NewLabel => $"l{_labelCounter++}";
+        public string NewLabel => $"l{_labelCounter++}";
     }
 }

@@ -6,6 +6,10 @@ namespace Common.AST.Exprs
     {
         public string Id { get; set; }
 
+        public ID()
+        {
+        }
+
         public ID(LatteParser.EIdContext context)
         {
             Id = context.ID().GetText();

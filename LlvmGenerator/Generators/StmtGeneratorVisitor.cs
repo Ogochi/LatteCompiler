@@ -19,6 +19,23 @@ namespace LlvmGenerator.Generators
             _state = state;
         }
 
+        public override void Visit(Cond cond)
+        {
+            var expr = new ExpressionSimplifierVisitor().Visit(cond.Expr);
+            var exprResult = new ExpressionGeneratorVisitor(_state).Visit(expr);
+            
+            _state.GoToNextLabel(out var trueLabel);
+            var falseLabel = _state.NewLabel;
+
+            _llvmGenerator.Emit($"br i1 {exprResult.Register}, label %{trueLabel}, label %{falseLabel}");
+            _llvmGenerator.Emit($"{trueLabel}:");
+            Visit(cond.Block);
+            
+            _llvmGenerator.Emit($"br label %{falseLabel}");
+            _state.CurrentLabel = falseLabel;
+            _llvmGenerator.Emit($"{falseLabel}:");
+        }
+
         public override void Visit(Decr decr)
         {
             Visit(new Ass(decr.Id, new AddOp {Add = Add.Minus, Lhs = new ID {Id = decr.Id}, Rhs = new Int {Value = 1}}));
@@ -46,9 +63,13 @@ namespace LlvmGenerator.Generators
 
         public override void Visit(Decl decl)
         {
-            decl.Items.ToList().ForEach(item => Visit(new Ass(
-                item.Id, 
-                item.Expr ?? Common.AST.Exprs.Utils.DefaultValueForType(decl.Type))));
+            decl.Items.ToList().ForEach(item =>
+            {
+                _state.VarToRegister[item.Id] = new List<RegisterLabelContext>();
+                Visit(new Ass(
+                    item.Id,
+                    item.Expr ?? Common.AST.Exprs.Utils.DefaultValueForType(decl.Type)));
+            });
         }
         
         public override void Visit(Ass ass)
@@ -56,7 +77,7 @@ namespace LlvmGenerator.Generators
             var expr = new ExpressionSimplifierVisitor().Visit(ass.Expr);
             var exprResult = new ExpressionGeneratorVisitor(_state).Visit(expr);
 
-            _state.VarToRegister[ass.Id] = new List<RegisterLabelContext> {exprResult};
+            _state.VarToRegister[ass.Id].Add(exprResult);
         }
         
         public override void Visit(Ret ret)
