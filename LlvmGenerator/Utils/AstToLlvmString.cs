@@ -73,7 +73,7 @@ namespace LlvmGenerator.Utils
                 }
                 isFirst = false;
 
-                result.Append($"{Type(arg.Type)} {state.VarToRegister[arg.Id][0].Register}");
+                result.Append($"{Type(arg.Type)} {state.VarToLabelToRegister[arg.Id][FunctionGeneratorState.EntryLabel].Register}");
             });
 
             return result.ToString();

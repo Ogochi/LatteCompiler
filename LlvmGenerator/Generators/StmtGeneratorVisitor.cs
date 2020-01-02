@@ -128,7 +128,7 @@ namespace LlvmGenerator.Generators
         {
             decl.Items.ToList().ForEach(item =>
             {
-                _state.VarToRegister[item.Id] = new List<RegisterLabelContext>();
+                _state.VarToLabelToRegister[item.Id] = new Dictionary<string, RegisterLabelContext>();
                 Visit(new Ass(
                     item.Id,
                     item.Expr ?? Common.AST.Exprs.Utils.DefaultValueForType(decl.Type)));
@@ -140,7 +140,7 @@ namespace LlvmGenerator.Generators
             var expr = new ExpressionSimplifierVisitor().Visit(ass.Expr);
             var exprResult = new ExpressionGeneratorVisitor(_state).Visit(expr);
 
-            _state.VarToRegister[ass.Id].Add(exprResult);
+            _state.VarToLabelToRegister[ass.Id][exprResult.Label] = exprResult;
         }
         
         public override void Visit(Ret ret)

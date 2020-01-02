@@ -6,37 +6,37 @@ namespace LlvmGenerator.StateManagement
 {
     public class FunctionGeneratorState
     {
-        public Dictionary<string, List<RegisterLabelContext>> VarToRegister { get; private set; } = 
-            new Dictionary<string, List<RegisterLabelContext>>();
+        public Dictionary<string, Dictionary<string, RegisterLabelContext>> VarToLabelToRegister { get; private set; } = 
+            new Dictionary<string, Dictionary<string, RegisterLabelContext>>();
 
         public string CurrentLabel = EntryLabel;
 
         public const string EntryLabel = "entry";
         
-        private readonly Stack<Dictionary<string, List<RegisterLabelContext>>> _previousScopeVars = 
-            new Stack<Dictionary<string, List<RegisterLabelContext>>>();
+        private readonly Stack<Dictionary<string, Dictionary<string, RegisterLabelContext>>> _previousScopeVars = 
+            new Stack<Dictionary<string, Dictionary<string, RegisterLabelContext>>>();
 
         private int _registerCounter, _labelCounter;
 
         public FunctionGeneratorState(FunctionDef function)
         {
-            function.Args.ForEach(arg => VarToRegister.Add(
+            function.Args.ForEach(arg => VarToLabelToRegister.Add(
                 arg.Id,
-                new List<RegisterLabelContext> {new RegisterLabelContext(NewRegister, EntryLabel, arg.Type)}));
+                new Dictionary<string, RegisterLabelContext> {{EntryLabel, new RegisterLabelContext(NewRegister, EntryLabel, arg.Type)}}));
         }
         
         public void RestorePreviousVarEnv()
         {
-            VarToRegister = _previousScopeVars.Pop();
+            VarToLabelToRegister = _previousScopeVars.Pop();
         }
 
         public void DetachVarEnv()
         {
-            _previousScopeVars.Push(VarToRegister);
+            _previousScopeVars.Push(VarToLabelToRegister);
             
-            VarToRegister = new Dictionary<string, List<RegisterLabelContext>>();
+            VarToLabelToRegister = new Dictionary<string, Dictionary<string, RegisterLabelContext>>();
             _previousScopeVars.Peek().ToList().ForEach(var => 
-                VarToRegister.Add(var.Key, var.Value));
+                VarToLabelToRegister.Add(var.Key, var.Value));
         }
 
         public void GoToNextLabel(out string nextLabel)

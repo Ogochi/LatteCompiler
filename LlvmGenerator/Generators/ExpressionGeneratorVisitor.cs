@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Text;
 using Common.AST.Exprs;
 using LlvmGenerator.StateManagement;
@@ -94,7 +95,7 @@ namespace LlvmGenerator.Generators
 
         public override RegisterLabelContext Visit(ID id)
         {
-            var values = _state.VarToRegister[id.Id];
+            var values = _state.VarToLabelToRegister[id.Id].Values.ToList();
 
             if (values.Count == 1)
             {
