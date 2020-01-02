@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Common.AST;
+using Common.AST.Exprs;
 using Common.AST.Stmts;
 using LlvmGenerator.StateManagement;
 using LlvmGenerator.Utils;
@@ -16,6 +17,16 @@ namespace LlvmGenerator.Generators
         public StmtGeneratorVisitor(FunctionGeneratorState state)
         {
             _state = state;
+        }
+
+        public override void Visit(Decr decr)
+        {
+            Visit(new Ass(decr.Id, new AddOp {Add = Add.Minus, Lhs = new ID {Id = decr.Id}, Rhs = new Int {Value = 1}}));
+        }
+
+        public override void Visit(Incr incr)
+        {
+            Visit(new Ass(incr.Id, new AddOp {Add = Add.Plus, Lhs = new ID {Id = incr.Id}, Rhs = new Int {Value = 1}}));
         }
 
         public override void Visit(Block block)
