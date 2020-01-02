@@ -18,7 +18,13 @@ printf "\n\t---BASE TESTS---\n"
 for f in $BASE_TESTS/*.lat
 do
 	./latc_llvm $f
-	lli ${f: : -4}.bc > out.tmp 2> /dev/null
+
+	if test -f "${f: : -4}.input"
+	then
+		lli ${f: : -4}.bc < ${f: : -4}.input > out.tmp 2> /dev/null
+	else
+		lli ${f: : -4}.bc > out.tmp 2> /dev/null
+	fi
 	LLIRES=$?
 
 	DIFF=$(diff out.tmp ${f: : -4}.output)
