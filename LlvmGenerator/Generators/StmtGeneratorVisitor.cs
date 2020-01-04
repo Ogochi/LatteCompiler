@@ -86,13 +86,18 @@ namespace LlvmGenerator.Generators
             }
             
             var exprResult = new ExpressionGeneratorVisitor(_state).Visit(expr);
+            _state.ConsolidateVariables();
             
             _state.GoToNextLabel(out var trueLabel);
             var falseLabel = _state.NewLabel;
             _llvmGenerator.Emit($"br i1 {exprResult.Register}, label %{trueLabel}, label %{falseLabel}");
-            
+
             _llvmGenerator.Emit($"{trueLabel}:");
-            Visit(cond.Block);
+            VisitBlockWithoutRestore(cond.Block);
+            
+            _state.ConsolidateVariables();
+            _state.RestorePreviousVarEnvWithMerge();
+            
             _llvmGenerator.Emit($"br label %{falseLabel}");
             
             _state.CurrentLabel = falseLabel;
@@ -111,13 +116,10 @@ namespace LlvmGenerator.Generators
 
         public override void Visit(Block block)
         {
-            _state.DetachVarEnv();
-            
-            block.Stmts.ToList().ForEach(Visit);
-            
+            VisitBlockWithoutRestore(block);
             _state.RestorePreviousVarEnv();
         }
-        
+
         public override void Visit(ExpStmt expStmt)
         {
             var expr = new ExpressionSimplifierVisitor().Visit(expStmt.Expr);
@@ -132,8 +134,14 @@ namespace LlvmGenerator.Generators
                     ? new ExpressionSimplifierVisitor().Visit(item.Expr) 
                     : Common.AST.Exprs.Utils.DefaultValueForType(decl.Type);
                 var exprResult = new ExpressionGeneratorVisitor(_state).Visit(expr);
+                
                 _state.VarToLabelToRegister[item.Id] = 
                     new Dictionary<string, RegisterLabelContext> {{exprResult.Label, exprResult}};
+
+                if (_state.VarToLabelToRegister.ContainsKey(item.Id))
+                {
+                    _state.RedefinedVars.Add(item.Id);
+                }
             });
         }
         
@@ -142,7 +150,8 @@ namespace LlvmGenerator.Generators
             var expr = new ExpressionSimplifierVisitor().Visit(ass.Expr);
             var exprResult = new ExpressionGeneratorVisitor(_state).Visit(expr);
 
-            _state.VarToLabelToRegister[ass.Id][exprResult.Label] = exprResult;
+            _state.VarToLabelToRegister[ass.Id] = 
+                new Dictionary<string, RegisterLabelContext> {{exprResult.Label, exprResult}};
         }
         
         public override void Visit(Ret ret)
@@ -161,6 +170,12 @@ namespace LlvmGenerator.Generators
             }
             
             _llvmGenerator.Emit(toEmit);
+        }
+
+        private void VisitBlockWithoutRestore(Block block)
+        {
+            _state.DetachVarEnv();
+            block.Stmts.ToList().ForEach(Visit);
         }
     }
 }

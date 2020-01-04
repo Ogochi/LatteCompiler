@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Common.AST;
+using Common.AST.Exprs;
+using LlvmGenerator.Generators;
 
 namespace LlvmGenerator.StateManagement
 {
@@ -8,6 +10,8 @@ namespace LlvmGenerator.StateManagement
     {
         public Dictionary<string, Dictionary<string, RegisterLabelContext>> VarToLabelToRegister { get; private set; } = 
             new Dictionary<string, Dictionary<string, RegisterLabelContext>>();
+        
+        public HashSet<string> RedefinedVars = new HashSet<string>();
 
         public string CurrentLabel = EntryLabel;
 
@@ -15,6 +19,8 @@ namespace LlvmGenerator.StateManagement
         
         private readonly Stack<Dictionary<string, Dictionary<string, RegisterLabelContext>>> _previousScopeVars = 
             new Stack<Dictionary<string, Dictionary<string, RegisterLabelContext>>>();
+        
+        private readonly Stack<HashSet<string>> _previousScopeRedefined = new Stack<HashSet<string>>();
 
         private int _registerCounter, _labelCounter;
 
@@ -28,15 +34,49 @@ namespace LlvmGenerator.StateManagement
         public void RestorePreviousVarEnv()
         {
             VarToLabelToRegister = _previousScopeVars.Pop();
+            RedefinedVars = _previousScopeRedefined.Pop();
+        }
+
+        public void RestorePreviousVarEnvWithMerge()
+        {
+            var currentEnv = VarToLabelToRegister;
+
+            foreach (var var in currentEnv)
+            {
+                var.Value.ToList().ForEach(v =>
+                {
+                    if (!RedefinedVars.Contains(var.Key))
+                    {
+                        _previousScopeVars.Peek()[var.Key].Add(v.Key, v.Value);
+                    }
+                });
+            }
+            
+            RestorePreviousVarEnv();
         }
 
         public void DetachVarEnv()
         {
             _previousScopeVars.Push(VarToLabelToRegister);
+            _previousScopeRedefined.Push(RedefinedVars);
             
             VarToLabelToRegister = new Dictionary<string, Dictionary<string, RegisterLabelContext>>();
             _previousScopeVars.Peek().ToList().ForEach(var => 
                 VarToLabelToRegister.Add(var.Key, var.Value));
+            RedefinedVars = new HashSet<string>();
+        }
+
+        public void ConsolidateVariables()
+        {
+            foreach (var var in VarToLabelToRegister)
+            {
+                var onlyRegister = var.Value.ContainsKey(CurrentLabel) 
+                    ? var.Value[CurrentLabel] 
+                    : new ExpressionGeneratorVisitor(this).Visit(new ID {Id = var.Key});
+
+                var.Value.Clear();
+                var.Value[CurrentLabel] = onlyRegister;
+            }
         }
 
         public void GoToNextLabel(out string nextLabel)
