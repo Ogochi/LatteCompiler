@@ -163,11 +163,29 @@ namespace LlvmGenerator.Generators
 
         public override RegisterLabelContext Visit(Or or)
         {
+            _state.ConsolidateVariables();
+            _state.GoToNextLabel(out var label1);
+            string label2 = _state.NewLabel, label3 = _state.NewLabel;
+            _llvmGenerator.Emit($"br label %{label1}");
+            
+            _state.CurrentLabel = label1;
+            _llvmGenerator.Emit($"{label1}:");
             var c1 = Visit(or.Lhs);
+            var label1ResultLabel = _state.CurrentLabel;
+            _llvmGenerator.Emit($"br i1 {c1.Register}, label %{label3}, label %{label2}");
+            
+            _state.CurrentLabel = label2;
+            _llvmGenerator.Emit($"{label2}:");
             var c2 = Visit(or.Rhs);
+            var label2ResultLabel = _state.CurrentLabel;
+            _llvmGenerator.Emit($"br label %{label3}");
 
+            _state.CurrentLabel = label3;
+            _llvmGenerator.Emit($"{label3}:");
+            
+            _state.ConsolidateVariables();
             var nextRegister = _state.NewRegister;
-            _llvmGenerator.Emit($"{nextRegister} = or i1 {c1.Register}, {c2.Register}");
+            _llvmGenerator.Emit($"{nextRegister} = phi i1 [1, %{label1ResultLabel}], [{c2.Register}, %{label2ResultLabel}]");
 
             return new RegisterLabelContext(nextRegister, _state.CurrentLabel, new LatteParser.TBoolContext());
         }
