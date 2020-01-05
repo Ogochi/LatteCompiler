@@ -11,7 +11,8 @@ namespace LlvmGenerator.StateManagement
         public Dictionary<string, Dictionary<string, RegisterLabelContext>> VarToLabelToRegister { get; private set; } = 
             new Dictionary<string, Dictionary<string, RegisterLabelContext>>();
         
-        public HashSet<string> RedefinedVars = new HashSet<string>();
+        public Dictionary<string, Dictionary<string, RegisterLabelContext>> RedefinedVars = 
+            new Dictionary<string, Dictionary<string, RegisterLabelContext>>();
 
         public string CurrentLabel = EntryLabel;
 
@@ -20,7 +21,8 @@ namespace LlvmGenerator.StateManagement
         private readonly Stack<Dictionary<string, Dictionary<string, RegisterLabelContext>>> _previousScopeVars = 
             new Stack<Dictionary<string, Dictionary<string, RegisterLabelContext>>>();
         
-        private readonly Stack<HashSet<string>> _previousScopeRedefined = new Stack<HashSet<string>>();
+        private readonly Stack<Dictionary<string, Dictionary<string, RegisterLabelContext>>> _previousScopeRedefined = 
+            new Stack<Dictionary<string, Dictionary<string, RegisterLabelContext>>>();
 
         private int _registerCounter, _labelCounter;
 
@@ -75,9 +77,13 @@ namespace LlvmGenerator.StateManagement
             {
                 var.Value.ToList().ForEach(v =>
                 {
-                    if (!RedefinedVars.Contains(var.Key))
+                    if (!RedefinedVars.ContainsKey(var.Key))
                     {
                         _previousScopeVars.Peek()[var.Key][v.Key] = v.Value;
+                    }
+                    else
+                    {
+                        _previousScopeVars.Peek()[var.Key] = RedefinedVars[var.Key];
                     }
                 });
             }
@@ -93,7 +99,7 @@ namespace LlvmGenerator.StateManagement
             VarToLabelToRegister = new Dictionary<string, Dictionary<string, RegisterLabelContext>>();
             _previousScopeVars.Peek().ToList().ForEach(var => 
                 VarToLabelToRegister.Add(var.Key, var.Value));
-            RedefinedVars = new HashSet<string>();
+            RedefinedVars = new Dictionary<string, Dictionary<string, RegisterLabelContext>>();
         }
 
         public void ConsolidateVariables()

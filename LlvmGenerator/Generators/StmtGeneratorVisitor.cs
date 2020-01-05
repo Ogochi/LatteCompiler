@@ -161,14 +161,15 @@ namespace LlvmGenerator.Generators
                     ? new ExpressionSimplifierVisitor().Visit(item.Expr) 
                     : Common.AST.Exprs.Utils.DefaultValueForType(decl.Type);
                 var exprResult = new ExpressionGeneratorVisitor(_state).Visit(expr);
-                
-                _state.VarToLabelToRegister[item.Id] = 
-                    new Dictionary<string, RegisterLabelContext> {{exprResult.Label, exprResult}};
 
                 if (_state.VarToLabelToRegister.ContainsKey(item.Id))
                 {
-                    _state.RedefinedVars.Add(item.Id);
+                    _state.RedefinedVars[item.Id] = _state.VarToLabelToRegister[item.Id]
+                        .ToList().ToDictionary(a => a.Key, a => a.Value);
                 }
+                
+                _state.VarToLabelToRegister[item.Id] = 
+                    new Dictionary<string, RegisterLabelContext> {{exprResult.Label, exprResult}};
             });
         }
         
