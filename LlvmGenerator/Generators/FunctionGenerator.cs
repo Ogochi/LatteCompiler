@@ -20,6 +20,11 @@ namespace LlvmGenerator.Generators
             {
                 _llvmGenerator.Emit("ret void");
             }
+
+            if (_llvmGenerator.LastEmitted().Contains(":"))
+            {
+                _llvmGenerator.Emit($"br label %{state.CurrentLabel}");
+            }
             
             _llvmGenerator.Emit("}");
         }

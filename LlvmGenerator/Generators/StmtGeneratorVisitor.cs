@@ -84,7 +84,7 @@ namespace LlvmGenerator.Generators
             _state.RestorePreviousVarEnvWithMerge();
             
             _state.RemoveReservedRegisters(reservedRegisters, out var removedRegisters);
-            _state.ConsolidateVariables();
+            _state.ConsolidateVariables(reservedRegisters);
 
             var removedRegs = removedRegisters.ToHashSet();
             var reservedToReplace = reservedRegisters.ToList().Where(reg => removedRegs.Contains(reg.Value.Register)).ToList();

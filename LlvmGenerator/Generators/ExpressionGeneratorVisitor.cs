@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Common.AST.Exprs;
@@ -93,7 +94,7 @@ namespace LlvmGenerator.Generators
             return new RegisterLabelContext(nextRegister, _state.CurrentLabel, function.Type);
         }
 
-        public override RegisterLabelContext Visit(ID id)
+        public RegisterLabelContext VisitID(ID id, string registerOverride = null)
         {
             var values = _state.VarToLabelToRegister[id.Id].Values.ToList();
 
@@ -115,10 +116,15 @@ namespace LlvmGenerator.Generators
                 phi.Append($"[{value.Register}, %{value.Label}]");
             }
             
-            var nextRegister = _state.NewRegister;
+            var nextRegister = registerOverride ?? _state.NewRegister;
             _llvmGenerator.Emit($"{nextRegister} = phi {AstToLlvmString.Type(values[0].Type)} {phi}");
             
             return new RegisterLabelContext(nextRegister, _state.CurrentLabel, values[0].Type);
+        }
+
+        public override RegisterLabelContext Visit(ID id)
+        {
+            return VisitID(id);
         }
 
         public override RegisterLabelContext Visit(Int @int)
