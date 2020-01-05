@@ -108,6 +108,19 @@ namespace LlvmGenerator.StateManagement
                 var.Value[CurrentLabel] = onlyRegister;
             }
         }
+        
+        public void ConsolidateVariables(Dictionary<string, RegisterLabelContext> reservedRegisters)
+        {
+            foreach (var var in VarToLabelToRegister)
+            {
+                var onlyRegister = var.Value.ContainsKey(CurrentLabel) 
+                    ? var.Value[CurrentLabel] 
+                    : new ExpressionGeneratorVisitor(this).VisitID(new ID {Id = var.Key}, reservedRegisters[var.Key].Register);
+
+                var.Value.Clear();
+                var.Value[CurrentLabel] = onlyRegister;
+            }
+        }
 
         public void GoToNextLabel(out string nextLabel)
         {
