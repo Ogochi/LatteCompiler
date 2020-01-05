@@ -12,7 +12,7 @@ namespace LlvmGenerator.Utils
                 (Add.Plus, Int i1, Int i2) => new Int {Value = i1.Value + i2.Value},
                 (Add.Minus, Int i1, Int i2) => new Int {Value = i1.Value - i2.Value},
                 (Add.Plus, Str s1, Str s2) => new Str {Value = s1.Value + s2.Value},
-                (_, Expr e1, Expr e2) => new AddOp {Lhs = e1, Rhs = e2}
+                (_, Expr e1, Expr e2) => new AddOp {Add = addOp.Add, Lhs = e1, Rhs = e2}
             };
         }
 
