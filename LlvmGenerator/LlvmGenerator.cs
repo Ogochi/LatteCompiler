@@ -15,6 +15,21 @@ namespace LlvmGenerator
         
         private LlvmGenerator() {}
 
+        public int GetCurrentLength()
+        {
+            return EmittedCode.Count;
+        }
+
+        public void ReplaceRegisters(int from, List<(string, string)> fromTo)
+        {
+            for (var i = from; i < EmittedCode.Count; i++)
+            {
+                var currentStr = EmittedCode[i];
+                fromTo.ForEach(ft => currentStr = currentStr.Replace(ft.Item1, ft.Item2));
+                EmittedCode[i] = currentStr;
+            }
+        }
+        
         public void Emit(string s)
         {
             EmittedCode.Add(s);

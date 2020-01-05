@@ -28,26 +28,18 @@ namespace LlvmGenerator.Generators
             }
 
             var exprResult = new ExpressionGeneratorVisitor(_state).Visit(expr);
-            _state.ConsolidateVariables();
-
-            var startLabel = _state.CurrentLabel;
+            
             _state.GoToNextLabel(out var trueLabel);
             string falseLabel = _state.NewLabel, endIfLabel = _state.NewLabel;
             _llvmGenerator.Emit($"br i1 {exprResult.Register}, label %{trueLabel}, label %{falseLabel}");
             
             _llvmGenerator.Emit($"{trueLabel}:");
-            VisitBlockWithoutRestore(condElse.TBlock);
-            
-            _state.RestorePreviousVarEnvWithMerge();
-            _state.ConsolidateVariables();
+            Visit(condElse.TBlock);
             _llvmGenerator.Emit($"br label %{endIfLabel}");
             
             _state.CurrentLabel = falseLabel;
             _llvmGenerator.Emit($"{falseLabel}:");
-            VisitBlockWithoutRestore(condElse.FBlock);
-            
-            _state.ConsolidateVariables();
-            _state.RestorePreviousVarEnvWithMerge();
+            Visit(condElse.FBlock);
             _llvmGenerator.Emit($"br label %{endIfLabel}");
             
             _state.CurrentLabel = endIfLabel;
@@ -61,43 +53,24 @@ namespace LlvmGenerator.Generators
             {
                 return;
             }
-            _state.ConsolidateVariables();
-
+            
             _state.GoToNextLabel(out var startWhileLabel);
             _llvmGenerator.Emit($"br label %{startWhileLabel}");
-            
-            _state.DetachVarEnv();
-            _state.DetachVarEnv();
-            var reservedRegisters = _state.ReserveRegisterForCurrentVars(startWhileLabel);
-
-            _state.GoToNextLabel(out var whileLabel);
-            _llvmGenerator.Emit($"{whileLabel}:");
-            var startLength = _llvmGenerator.GetCurrentLength();
-            VisitBlock(@while.Block);
-            
-            _state.ConsolidateVariables();
-            _state.RestorePreviousVarEnvWithMerge();
-            _llvmGenerator.Emit($"br label %{startWhileLabel}");
-
-            _state.CurrentLabel = startWhileLabel;
             _llvmGenerator.Emit($"{startWhileLabel}:");
-            _state.RestorePreviousVarEnvWithMerge();
-            
-            _state.RemoveReservedRegisters(reservedRegisters, out var removedRegisters);
-            _state.ConsolidateVariables();
-
-            var removedRegs = removedRegisters.ToHashSet();
-            var reservedToReplace = reservedRegisters.ToList().Where(reg => removedRegs.Contains(reg.Value.Register)).ToList();
-
-            _llvmGenerator.ReplaceRegisters(startLength, reservedToReplace.Select(res => 
-                (res.Value.Register, _state.VarToLabelToRegister[res.Key][_state.CurrentLabel].Register)).ToList());
             
             var exprResult = new ExpressionGeneratorVisitor(_state).Visit(expr);
+            
+            _state.GoToNextLabel(out var whileLabel);
             var endWhileLabel = _state.NewLabel;
             _llvmGenerator.Emit($"br i1 {exprResult.Register}, label %{whileLabel}, label %{endWhileLabel}");
             
+            _llvmGenerator.Emit($"{whileLabel}:");
+            Visit(@while.Block);
+            _llvmGenerator.Emit($"br label %{startWhileLabel}");
+
             _state.CurrentLabel = endWhileLabel;
             _llvmGenerator.Emit($"{endWhileLabel}:");
+            _llvmGenerator.Emit($"br label %{endWhileLabel}");
         }
 
         public override void Visit(Cond cond)
@@ -202,11 +175,6 @@ namespace LlvmGenerator.Generators
         private void VisitBlockWithoutRestore(Block block)
         {
             _state.DetachVarEnv();
-            VisitBlock(block);
-        }
-
-        private void VisitBlock(Block block)
-        {
             block.Stmts.ToList().ForEach(Visit);
         }
     }

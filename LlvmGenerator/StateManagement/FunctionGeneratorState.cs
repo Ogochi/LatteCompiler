@@ -37,6 +37,36 @@ namespace LlvmGenerator.StateManagement
             RedefinedVars = _previousScopeRedefined.Pop();
         }
 
+        public void RemoveReservedRegisters(Dictionary<string, RegisterLabelContext> reserved, out List<string> removedRegisters)
+        {
+            var toRemove = new List<RegisterLabelContext>();
+            var reservedRegisters = reserved.Values.Select(reg => reg.Register).ToHashSet();
+
+            foreach (var var in reserved.Keys)
+            {
+                var currentToRemove = VarToLabelToRegister[var].Values
+                    .Where(reg => reservedRegisters.Contains(reg.Register))
+                    .ToList();
+
+                currentToRemove.ForEach(reg => VarToLabelToRegister[var].Remove(reg.Label));
+                currentToRemove.ForEach(toRemove.Add);
+            }
+
+            removedRegisters = toRemove.Select(reg => reg.Register).ToList();
+        }
+
+        public Dictionary<string, RegisterLabelContext> ReserveRegisterForCurrentVars(string label)
+        {
+            var result = VarToLabelToRegister.ToDictionary(
+                var => var.Key,
+                var => new RegisterLabelContext(NewRegister, label, var.Value.Values.First().Type));
+            
+            result.ToList().ForEach(item => 
+                VarToLabelToRegister[item.Key] = new Dictionary<string, RegisterLabelContext> {{item.Value.Label, item.Value}});
+
+            return result;
+        }
+
         public void RestorePreviousVarEnvWithMerge()
         {
             var currentEnv = VarToLabelToRegister;
@@ -47,7 +77,7 @@ namespace LlvmGenerator.StateManagement
                 {
                     if (!RedefinedVars.Contains(var.Key))
                     {
-                        _previousScopeVars.Peek()[var.Key].Add(v.Key, v.Value);
+                        _previousScopeVars.Peek()[var.Key][v.Key] = v.Value;
                     }
                 });
             }
