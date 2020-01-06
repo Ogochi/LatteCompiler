@@ -6,6 +6,7 @@ using Antlr4.Runtime.Tree;
 using Frontend;
 using Common.StateManagement;
 using Frontend.Exception;
+using LLVMCompiler.Utils;
 using ParsingTools;
 using static LLVMCompiler.Utils.BashUtils;
 
@@ -27,12 +28,7 @@ namespace LLVMCompiler
 
         private static int RunProgramFromString(string programToCompile)
         {
-            if (!ParseAndCompileFile(new AntlrInputStream(programToCompile), out var compilationResult))
-            {
-                Console.Error.WriteLine("ERROR");
-                Console.Error.WriteLine("\n----\nEncountered parsing errors.\n");
-                return ErrorCode;
-            }
+            ParseAndCompileFile(new AntlrInputStream(programToCompile), out var compilationResult);
 
             var errorState = ErrorState.Instance;
             if (errorState.isError())
@@ -61,11 +57,7 @@ namespace LLVMCompiler
             var fileName = Path.GetFileNameWithoutExtension(args[0]);
             var filePath = Path.GetDirectoryName(args[0]);
 
-            if (!ParseAndCompileFile(new AntlrFileStream(args[0]), out var compilationResult))
-            {
-                Console.Error.WriteLine("ERROR");
-                return ErrorCode;
-            }
+            ParseAndCompileFile(new AntlrFileStream(args[0]), out var compilationResult);
 
             var errorState = ErrorState.Instance;
             if (errorState.isError())
@@ -111,19 +103,24 @@ namespace LLVMCompiler
         /*
          * Returns "false" on parsing error
          */
-        private static bool ParseAndCompileFile(ICharStream fileStream, out List<String> compilationResult)
+        private static void ParseAndCompileFile(ICharStream fileStream, out List<string> compilationResult)
         {
             var lexer = new LatteLexer(fileStream);
+            lexer.RemoveErrorListener(ConsoleErrorListener<int>.Instance);
+            lexer.AddErrorListener(new LexerErrorListener<int>());
+
             var parser = new LatteParser(new CommonTokenStream(lexer))
             {
                 BuildParseTree = true
             };
+            parser.RemoveErrorListener(ConsoleErrorListener<IToken>.Instance);
+            parser.AddErrorListener(new LexerErrorListener<IToken>());
 
             var program = parser.program();
             if (parser.NumberOfSyntaxErrors != 0)
             {
                 compilationResult = new List<string>();
-                return false;
+                return;
             }
             
             try
@@ -132,10 +129,14 @@ namespace LLVMCompiler
             }
             catch (InterruptedStaticCheckException) {}
 
+            if (ErrorState.Instance.isError())
+            {
+                compilationResult = new List<string>();
+                return;
+            }
+
             var programAst = new Common.AST.Program(program).WithPrefixedFunctions();
             compilationResult = LlvmGenerator.LlvmGenerator.Instance.GenerateFromAst(programAst);
-
-            return true;
         }
     }
 }
