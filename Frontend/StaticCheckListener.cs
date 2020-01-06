@@ -232,7 +232,7 @@ namespace Frontend
                     StateUtils.InterruptWithMessage(
                         decl.start.Line,
                         decl.start.Column,
-                        ErrorMessages.VarExprTypesMismatch(exprType + ", " + context.type()));
+                        ErrorMessages.VarExprTypesMismatch(decl.ID().GetText()));
                 }
             }
         }
