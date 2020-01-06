@@ -7,10 +7,12 @@ BASE_TESTS=$BASE_PATH/good
 printf "\t---FRONTEND TESTS---\n"
 for f in $FRONT_TESTS/*.lat
 do
-	./latc_llvm $f 2> /dev/null
+	./latc_llvm $f
 
 	if [ $? == 0 ]; then
    		printf "Test $f failed.\n"
+	else
+		printf '\e[1;34m%-6s\e[m\n' "Test $f succeeded!"
 	fi
 done
 
