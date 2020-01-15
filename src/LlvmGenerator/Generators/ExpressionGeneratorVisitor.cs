@@ -48,28 +48,24 @@ namespace LlvmGenerator.Generators
         public override RegisterLabelContext Visit(And and)
         {
             _state.ConsolidateVariables();
-            _state.GoToNextLabel(out var label1);
-            string label2 = _state.NewLabel, label3 = _state.NewLabel;
-            _llvmGenerator.Emit($"br label %{label1}");
+            string label1 = _state.NewLabel, label2 = _state.NewLabel;
+
+            var c1 = Visit(and.Lhs);
+            var firstResultLabel = _state.CurrentLabel;
+            _llvmGenerator.Emit($"br i1 {c1.Register}, label %{label1}, label %{label2}");
             
             _state.CurrentLabel = label1;
             _llvmGenerator.Emit($"{label1}:");
-            var c1 = Visit(and.Lhs);
+            var c2 = Visit(and.Rhs);
             var label1ResultLabel = _state.CurrentLabel;
-            _llvmGenerator.Emit($"br i1 {c1.Register}, label %{label2}, label %{label3}");
-            
+            _llvmGenerator.Emit($"br label %{label2}");
+
             _state.CurrentLabel = label2;
             _llvmGenerator.Emit($"{label2}:");
-            var c2 = Visit(and.Rhs);
-            var label2ResultLabel = _state.CurrentLabel;
-            _llvmGenerator.Emit($"br label %{label3}");
-
-            _state.CurrentLabel = label3;
-            _llvmGenerator.Emit($"{label3}:");
             
             _state.ConsolidateVariables();
             var nextRegister = _state.NewRegister;
-            _llvmGenerator.Emit($"{nextRegister} = phi i1 [0, %{label1ResultLabel}], [{c2.Register}, %{label2ResultLabel}]");
+            _llvmGenerator.Emit($"{nextRegister} = phi i1 [0, %{firstResultLabel}], [{c2.Register}, %{label1ResultLabel}]");
 
             return new RegisterLabelContext(nextRegister, _state.CurrentLabel, new LatteParser.TBoolContext());
         }
@@ -164,12 +160,8 @@ namespace LlvmGenerator.Generators
         public override RegisterLabelContext Visit(Or or)
         {
             _state.ConsolidateVariables();
-            _state.GoToNextLabel(out var label1);
             string label2 = _state.NewLabel, label3 = _state.NewLabel;
-            _llvmGenerator.Emit($"br label %{label1}");
-            
-            _state.CurrentLabel = label1;
-            _llvmGenerator.Emit($"{label1}:");
+
             var c1 = Visit(or.Lhs);
             var label1ResultLabel = _state.CurrentLabel;
             _llvmGenerator.Emit($"br i1 {c1.Register}, label %{label3}, label %{label2}");
