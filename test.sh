@@ -4,6 +4,8 @@ FRONT_TESTS=$BASE_PATH/bad
 EXT_TESTS=$BASE_PATH/extensions
 BASE_TESTS=$BASE_PATH/good
 
+: <<'END'
+
 printf "\t---FRONTEND TESTS---\n"
 for f in $FRONT_TESTS/*.lat
 do
@@ -39,5 +41,27 @@ do
 	fi
 done
 rm $BASE_TESTS/*.bc
+
+END
+
+printf "\n\t---EXTENSION TESTS---\n"
+for f in $EXT_TESTS/struct/*.lat
+do
+        ./latc_llvm $f
+
+        lli ${f: : -4}.bc > out.tmp 2> /dev/null
+        LLIRES=$?
+
+        DIFF=$(diff out.tmp ${f: : -4}.output)
+        if [ "$DIFF" != "" ] || [ $LLIRES != 0 ]
+        then
+                 printf "Test $f failed.\n"
+        else
+                printf '\e[1;34m%-6s\e[m\n' "Test $f succeeded!"
+                rm ${f: : -4}.ll
+        fi
+done
+rm $EXT_TESTS/struct/*.bc
+
 rm out.tmp
 
