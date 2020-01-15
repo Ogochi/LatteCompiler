@@ -63,6 +63,7 @@ item
 
 expr
     : expr '.' ID '(' ( expr ( ',' expr )* )? ')' # EMethodCall
+    | '(' type ')' 'null'                         # ENullCast
     | expr '.' ID                                 # EObjectField
     | unOp expr                                   # EUnOp
     | expr mulOp expr                             # EMulOp
