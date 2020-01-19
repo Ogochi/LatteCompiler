@@ -10,8 +10,8 @@ topDef
     ;
 
 fieldOrMethodDef
-    : fieldDef ';'
-    | methodDef
+    : fieldDef ';'                                         # classFieldDef
+    | methodDef                                            # classMethodDef
     ;
 
 fieldDef

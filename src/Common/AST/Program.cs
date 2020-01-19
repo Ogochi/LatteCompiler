@@ -8,6 +8,7 @@ namespace Common.AST
     public class Program
     {
         public IList<FunctionDef> Functions { get; private set; } = new List<FunctionDef>();
+        public IList<ClassDef> Classes { get; private set; } = new List<ClassDef>();
 
         public Program(LatteParser.ProgramContext context)
         {
@@ -19,7 +20,8 @@ namespace Common.AST
                         Functions.Add(new FunctionDef(fDef));
                         break;
                     case LatteParser.ClassDefContext cDef:
-                        throw new NotImplementedException();
+                        Classes.Add(new ClassDef(cDef));
+                        break;
                     default:
                         throw new NotSupportedException();
                 }

@@ -3,7 +3,7 @@ namespace Frontend.StateManagement
     public class ErrorMessages
     {
         public static string VarAlreadyDefined(string id) => $"Variable '{id}' has been already defined in this block.";
-        public static string FuncAlreadyDefined(string id) => $"Function '{id}' has been already defined.";
+        public static string FuncOrClassAlreadyDefined(string id) => $"Function or class named '{id}' has been already defined.";
         public static string VarNotDefined(string id) => $"Variable '{id}' is not defined.";
         public static string FuncNotDefined(string id) => $"Function '{id}' is not defined.";
 
@@ -33,5 +33,18 @@ namespace Frontend.StateManagement
         public static string IfWrongCondition = "If condition can be only boolean expression.";
         public static string FunctionBranchWithoutRet(string id) => $"There is an execution branch in function '{id}' without return statement.";
         public static string VoidDeclaration = "Variable can't be if type 'void'";
+        public static string ClassNotDefinedException(string id) => $"Class '{id}' wasn't defined.";
+
+        public static string IncorrectNewException => "Cannot use 'new' with no class type.";
+        public static string SelfOnlyInClassException => "Keyword 'self' can be used only inside class definition.";
+
+        public static string FieldOrMethodAlreadyDefined(string id) => $"Method or field named '{id}' has been already defined in this class.";
+
+        public static string ClassFieldNotExist(string @class, string field) => $"Class '{@class}' doesn't have field named '{field}'.";
+
+        public static string MethodNotDefined(string classDefId, string methodId) => $"Class '{classDefId}' doesn't have method named '{methodId}'.";
+
+        public static string ParentNorDefinedException(string classDefId, string classDefParentId) => 
+            $"In '{classDefId}' class definition is mentioned not existing parent class '{classDefParentId}'.";
     }
 }

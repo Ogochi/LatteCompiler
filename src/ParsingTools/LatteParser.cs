@@ -96,12 +96,12 @@ namespace ParsingTools
             
             public override string GetText()
             {
-                return _typeName;
+                return _typeName ?? base.GetText();
             }
             
             public override string ToString()
             {
-                return _typeName;
+                return _typeName ?? base.GetText();
             }
         }
     }

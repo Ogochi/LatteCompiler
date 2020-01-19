@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.NetworkInformation;
+using Common.AST;
 using Frontend.StateManagement;
 using Common.StateManagement;
 using Frontend.ContextVisitor;
@@ -21,23 +23,74 @@ namespace Frontend
             
             context.topDef().ToList().ForEach(topDef =>
             {
-                switch (topDef)
+                var id = topDef switch
                 {
-                    case LatteParser.FunctionDefContext fDef:
-                        var id = fDef.ID().GetText();
-                        
-                        if (_environment.NameToFunctionDef.ContainsKey(id))
-                        {
-                            _errorState.AddErrorMessage(new ErrorMessage(
-                                topDef.start.Line,
-                                ErrorMessages.FuncAlreadyDefined(id)));
-                        }
-                        break;
-                    case LatteParser.ClassDefContext cDef:
-                        throw new NotImplementedException();
+                    LatteParser.FunctionDefContext fDef => fDef.ID().GetText(),
+                    LatteParser.ClassDefContext cDef => cDef.ID()[0].GetText() 
+                };
+                
+                if (_environment.NameToFunctionDef.ContainsKey(id) || _environment.NameToClassDef.ContainsKey(id))
+                {
+                    _errorState.AddErrorMessage(new ErrorMessage(
+                        topDef.start.Line,
+                        ErrorMessages.FuncOrClassAlreadyDefined(id)));
+                }
+
+                if (topDef is LatteParser.ClassDefContext classDef)
+                {
+                    CheckClassDef(classDef);
                 }
 
                 FrontendEnvironment.Instance.AddTopDef(topDef);
+            });
+            
+            _environment.NameToClassDef.Values.ToList().ForEach(classDef =>
+            {
+                if (classDef.ParentId != null && !_environment.NameToClassDef.ContainsKey(classDef.ParentId))
+                {
+                    _errorState.AddErrorMessage(
+                        new ErrorMessage(ErrorMessages.ParentNorDefinedException(classDef.Id, classDef.ParentId)));
+                }
+            });
+        }
+
+        private void CheckClassDef(LatteParser.ClassDefContext classDef)
+        {
+            var fieldMethod = new HashSet<string>();
+                                
+            classDef.fieldOrMethodDef().ToList().ForEach(fm =>
+            {
+                switch (fm) {
+                    case LatteParser.ClassFieldDefContext field:
+                        field.fieldDef().ID().ToList().ForEach(f =>
+                        {
+                            if (fieldMethod.Contains(f.GetText()))
+                            {
+                                _errorState.AddErrorMessage(
+                                    new ErrorMessage(fm.start.Line,
+                                        ErrorMessages.FieldOrMethodAlreadyDefined(f.GetText())));
+                            }
+                            else
+                            {
+                                fieldMethod.Add(field.GetText());
+                            }
+                        });
+                        break;
+                    
+                    case LatteParser.ClassMethodDefContext method:
+                        var methodId = method.methodDef().ID().GetText();
+                        if (fieldMethod.Contains(methodId))
+                        {
+                            _errorState.AddErrorMessage(
+                                new ErrorMessage(fm.start.Line,
+                                    ErrorMessages.FieldOrMethodAlreadyDefined(methodId)));
+                        }
+                        else
+                        {
+                            fieldMethod.Add(method.methodDef().ID().GetText());
+                        }
+                        break;
+                }
             });
         }
 
@@ -46,25 +99,70 @@ namespace Frontend
             new ExpressionTypeVisitor().Visit(context.expr());
         }
 
-        public override void EnterFunctionDef(LatteParser.FunctionDefContext context)
+        public override void EnterClassDef(LatteParser.ClassDefContext context)
         {
             _environment.DetachVarEnv();
-            _environment.CurrentFunctionName = context.ID().GetText();
+            _environment.DetachFuncEnv();
+            _environment.CurrentClassName = context.ID()[0].GetText();
+
+            foreach (var fm in context.fieldOrMethodDef())
+            {
+                switch (fm)
+                {
+                    case LatteParser.ClassFieldDefContext fields:
+                        fields.fieldDef().ID().ToList().ForEach(field => 
+                            _environment.NameToVarDef[field.GetText()] = new VarDef(fields.fieldDef().type(), field.GetText()));
+                        break;
+                    
+                    case LatteParser.ClassMethodDefContext method:
+                        _environment.NameToFunctionDef[method.methodDef().ID().GetText()] = 
+                            new FunctionDef(method.methodDef());
+                        break;
+                }
+            }
+        }
+
+        public override void ExitClassDef(LatteParser.ClassDefContext context)
+        {
+            _environment.RestorePreviousVarEnv();
+            _environment.RestorePreviousFuncEnv();
+            _environment.CurrentClassName = null;
+        }
+
+        public override void EnterMethodDef(LatteParser.MethodDefContext context)
+        {
+            EnterFunctionDef(new FunctionDef(context), context.start.Line, context.block(), context.arg());
+        }
+
+        public override void ExitMethodDef(LatteParser.MethodDefContext context)
+        {
+            _environment.RestorePreviousVarEnv();
+        }
+
+        public override void EnterFunctionDef(LatteParser.FunctionDefContext context)
+        {
+            EnterFunctionDef(new FunctionDef(context), context.start.Line, context.block(), context.arg());
+        }
+
+        private void EnterFunctionDef(FunctionDef context, int line, LatteParser.BlockContext block, LatteParser.ArgContext arg)
+        {
+            _environment.DetachVarEnv();
+            _environment.CurrentFunctionName = context.Id;
             
-            if (!context.type().Equals(new LatteParser.TVoidContext()) &&
-                !new ReturnsCheckVisitor().Visit(context.block()))
+            if (!context.Type.Equals(new LatteParser.TVoidContext()) &&
+                !new ReturnsCheckVisitor().Visit(block))
             {
                 _errorState.AddErrorMessage(new ErrorMessage(
-                    context.start.Line,
+                    line,
                     ErrorMessages.FunctionBranchWithoutRet(_environment.CurrentFunctionName)));
             }
 
-            if (context.arg() == null)
+            if (arg == null)
             {
                 return;
             }
 
-            var args = context.arg().type().Zip(context.arg().ID(), (a, b) => (a, b));
+            var args = arg.type().Zip(arg.ID(), (a, b) => (a, b));
             foreach (var (type, id) in args)
             {
                 var ident = id.GetText();
@@ -72,7 +170,7 @@ namespace Frontend
                 if (_environment.NameToVarDef.ContainsKey(ident))
                 {
                     _errorState.AddErrorMessage(new ErrorMessage(
-                        context.start.Line,
+                        line,
                         ErrorMessages.VarAlreadyDefined(ident)));
                 }
                 
@@ -110,13 +208,28 @@ namespace Frontend
             var variable = _environment.NameToVarDef[id];
             var exprType = new ExpressionTypeVisitor().Visit(context.expr());
 
-            if (!variable.Type.Equals(exprType))
+            if (!variable.Type.Equals(exprType) && !IsTypeParent(exprType, variable.Type))
             {
                 StateUtils.InterruptWithMessage(
                     context.start.Line,
                     context.ID().Symbol.Column,
                     ErrorMessages.VarExprTypesMismatch(id));
             }
+        }
+
+        public override void EnterStructAss(LatteParser.StructAssContext context)
+        {
+            base.EnterStructAss(context);
+        }
+
+        public override void ExitStructDecr(LatteParser.StructDecrContext context)
+        {
+            base.ExitStructDecr(context);
+        }
+
+        public override void EnterStructIncr(LatteParser.StructIncrContext context)
+        {
+            base.EnterStructIncr(context);
         }
 
         public override void EnterRet(LatteParser.RetContext context)
@@ -227,7 +340,7 @@ namespace Frontend
                 if (decl.expr() == null) continue;
                 
                 var exprType = new ExpressionTypeVisitor().Visit(decl.expr());
-                if (!context.type().Equals(exprType))
+                if (!context.type().Equals(exprType) && !IsTypeParent(exprType, context.type()))
                 {
                     StateUtils.InterruptWithMessage(
                         decl.start.Line,
@@ -295,6 +408,18 @@ namespace Frontend
                     context.start.Column,
                     ErrorMessages.IncrOnlyOnInt(id)));
             }
+        }
+
+        private bool IsTypeParent(LatteParser.TypeContext type, LatteParser.TypeContext parentToCheck)
+        {
+            var classDef = _environment.NameToClassDef[type.GetText()];
+            if (classDef.ParentId == null)
+            {
+                return false;
+            }
+
+            return classDef.ParentId == parentToCheck.GetText() ||
+                   IsTypeParent(new LatteParser.TTypeNameContext(classDef.ParentId), parentToCheck);
         }
     }
 }

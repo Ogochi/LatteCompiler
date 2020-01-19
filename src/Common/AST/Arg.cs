@@ -9,7 +9,7 @@ namespace Common.AST
         
         public Arg(LatteParser.TypeContext type, string id)
         {
-            this.Type = type;
+            Type = type;
             Id = id;
         }
     }

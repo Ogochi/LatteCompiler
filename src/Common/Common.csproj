@@ -45,6 +45,7 @@
     <ItemGroup>
         <Compile Include="AST\Arg.cs" />
         <Compile Include="AST\BaseAstVisitor.cs" />
+        <Compile Include="AST\ClassDef.cs" />
         <Compile Include="AST\Exprs\Add.cs" />
         <Compile Include="AST\Exprs\AddOp.cs" />
         <Compile Include="AST\Exprs\And.cs" />
@@ -54,8 +55,12 @@
         <Compile Include="AST\Exprs\FunCall.cs" />
         <Compile Include="AST\Exprs\ID.cs" />
         <Compile Include="AST\Exprs\Int.cs" />
+        <Compile Include="AST\Exprs\MethodCall.cs" />
         <Compile Include="AST\Exprs\Mul.cs" />
         <Compile Include="AST\Exprs\MulOp.cs" />
+        <Compile Include="AST\Exprs\NewObject.cs" />
+        <Compile Include="AST\Exprs\Null.cs" />
+        <Compile Include="AST\Exprs\ObjectField.cs" />
         <Compile Include="AST\Exprs\Or.cs" />
         <Compile Include="AST\Exprs\Rel.cs" />
         <Compile Include="AST\Exprs\RelOp.cs" />
@@ -64,6 +69,7 @@
         <Compile Include="AST\Exprs\Unary.cs" />
         <Compile Include="AST\Exprs\UnOp.cs" />
         <Compile Include="AST\Exprs\Utils.cs" />
+        <Compile Include="AST\Field.cs" />
         <Compile Include="AST\FunctionDef.cs" />
         <Compile Include="AST\FunctionDefPrefixDecorator.cs" />
         <Compile Include="AST\Item.cs" />
@@ -79,6 +85,9 @@
         <Compile Include="AST\Stmts\Incr.cs" />
         <Compile Include="AST\Stmts\Ret.cs" />
         <Compile Include="AST\Stmts\Stmt.cs" />
+        <Compile Include="AST\Stmts\StructAss.cs" />
+        <Compile Include="AST\Stmts\StructDecr.cs" />
+        <Compile Include="AST\Stmts\StructIncr.cs" />
         <Compile Include="AST\Stmts\Utils.cs" />
         <Compile Include="AST\Stmts\While.cs" />
         <Compile Include="Properties\AssemblyInfo.cs" />

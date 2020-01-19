@@ -2,7 +2,7 @@ namespace Common.StateManagement
 {
     public class ErrorMessage
     {
-        public int Line { get; set; }
+        public int? Line { get; set; }
         public int? Column { get; set; }
         public string Message { get; set; }
 
@@ -18,12 +18,20 @@ namespace Common.StateManagement
             Line = line;
             Message = message;
         }
+        
+        public ErrorMessage(string message)
+        {
+            Message = message;
+        }
 
         public override string ToString()
         {
-            return Column.HasValue
-                ? $"Error in line {Line}, column {Column}.\n" + $"Message: {Message}\n\t----\n"
-                : $"Error in line {Line}.\n" + $"Message: {Message}\n\t----\n";
+            var prefix = Line.HasValue
+                ? $"Line {Line}\n"
+                : "";
+            return prefix + (Column.HasValue
+                ? $"Column {Column}\n" + $"Message: {Message}\n\t----\n"
+                : $"Message: {Message}\n\t----\n");
         }
     }
 }

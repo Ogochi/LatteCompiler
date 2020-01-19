@@ -11,10 +11,26 @@ namespace Frontend.ContextVisitor
     {
         private readonly FrontendEnvironment _environment = FrontendEnvironment.Instance;
         private readonly ErrorState _errorState = ErrorState.Instance;
+        
+        public override LatteParser.TypeContext VisitENullCast(LatteParser.ENullCastContext context)
+        {
+            return context.type();
+        }
 
         public override LatteParser.TypeContext VisitEId(LatteParser.EIdContext context)
         {
             var id = context.ID().GetText();
+
+            if (id == "self")
+            {
+                if (_environment.CurrentClassName == null)
+                {
+                    Utils.StateUtils.InterruptWithMessage(context.start.Line, ErrorMessages.SelfOnlyInClassException);
+                }
+                
+                return new LatteParser.TTypeNameContext(_environment.CurrentClassName);
+            }
+            
             if (!_environment.NameToVarDef.ContainsKey(id))
             {
                 Utils.StateUtils.InterruptWithMessage(context.start.Line, ErrorMessages.VarNotDefined(id));
@@ -32,7 +48,7 @@ namespace Frontend.ContextVisitor
             }
 
             var function = _environment.NameToFunctionDef[id];
-            ValidateFunctionCall(function, context);
+            ValidateFunctionCall(function, function.Id, context.expr(), context.start.Line);
 
             return function.Type;
         }
@@ -118,7 +134,51 @@ namespace Frontend.ContextVisitor
 
         public override LatteParser.TypeContext VisitEMethodCall(LatteParser.EMethodCallContext context)
         {
-            throw new NotImplementedException();
+            var exprType = Visit(context.expr()[0]);
+            var classDef = _environment.NameToClassDef[exprType.GetText()];
+            var methodId = context.ID().GetText();
+            
+            if (!ClassHasMethod(classDef, methodId, out var method))
+            {
+                Utils.StateUtils.InterruptWithMessage(
+                    context.start.Line, 
+                    ErrorMessages.MethodNotDefined(classDef.Id, methodId));
+            }
+            
+            ValidateFunctionCall(method, methodId, context.expr().ToList().Skip(1).ToArray(), context.start.Line);
+            return method.Type;
+        }
+
+        private bool ClassHasMethod(ClassDef classDef, string methodId, out FunctionDef method)
+        {
+            if (classDef.Methods.ContainsKey(methodId))
+            {
+                method = classDef.Methods[methodId];
+                return true;
+            }
+            if (classDef.ParentId != null)
+            {
+                return ClassHasMethod(_environment.NameToClassDef[classDef.ParentId], methodId, out method);
+            }
+
+            method = null;
+            return false;
+        }
+        
+        private bool ClassHasField(ClassDef classDef, string fieldId, out Field field)
+        {
+            if (classDef.Fields.ContainsKey(fieldId))
+            {
+                field = classDef.Fields[fieldId];
+                return true;
+            }
+            if (classDef.ParentId != null)
+            {
+                return ClassHasField(_environment.NameToClassDef[classDef.ParentId], fieldId, out field);
+            }
+
+            field = null;
+            return false;
         }
 
         public override LatteParser.TypeContext VisitEParen(LatteParser.EParenContext context)
@@ -154,7 +214,18 @@ namespace Frontend.ContextVisitor
 
         public override LatteParser.TypeContext VisitEObjectField(LatteParser.EObjectFieldContext context)
         {
-            throw new NotImplementedException();
+            var exprType = Visit(context.expr());
+            var classDef = _environment.NameToClassDef[exprType.GetText()];
+            var fieldId = context.ID().GetText();
+            
+            if (!ClassHasField(classDef, fieldId, out var field))
+            {
+                Utils.StateUtils.InterruptWithMessage(
+                    context.start.Line, 
+                    ErrorMessages.ClassFieldNotExist(exprType.GetText(), fieldId));
+            }
+
+            return field.Type;
         }
 
         public override LatteParser.TypeContext VisitEFalse(LatteParser.EFalseContext context)
@@ -189,39 +260,53 @@ namespace Frontend.ContextVisitor
 
         public override LatteParser.TypeContext VisitENull(LatteParser.ENullContext context)
         {
-            throw new NotImplementedException();
+            return new LatteParser.TVoidContext();
         }
 
         public override LatteParser.TypeContext VisitENewObject(LatteParser.ENewObjectContext context)
         {
-            throw new NotImplementedException();
+            switch (context.type())
+            {
+                case LatteParser.TTypeNameContext typeContext:
+                    if (!_environment.NameToClassDef.ContainsKey(typeContext.GetText()))
+                    {
+                        _errorState.AddErrorMessage(new ErrorMessage(
+                            context.start.Line,
+                            ErrorMessages.ClassNotDefinedException(typeContext.GetText())));
+                    }
+                    break;
+                
+                default:
+                    _errorState.AddErrorMessage(new ErrorMessage(
+                        context.start.Line,
+                        ErrorMessages.IncorrectNewException));
+                    break;
+            }
+            
+            return context.type();
         }
 
-        public void ValidateFunctionCall(FunctionDef fDef, LatteParser.EFunCallContext fCall)
+        public void ValidateFunctionCall(FunctionDef fDef, string functionId, LatteParser.ExprContext[] expr, int line)
         {
-            var id = fCall.ID().GetText();
-
-            if (fDef.Args.Count  != (fCall?.expr().Length ?? 0))
+            if (fDef.Args.Count  != (expr?.Length ?? 0))
             {
                 _errorState.AddErrorMessage(new ErrorMessage(
-                    fCall.start.Line,
-                    ErrorMessages.WrongArgsCountFuncCall(id)));
+                    line,
+                    ErrorMessages.WrongArgsCountFuncCall(functionId)));
             }
 
-            CheckFunctionCallArgsForEqualCount(fDef, fCall);
+            CheckFunctionCallArgsForEqualCount(fDef, expr, functionId, line);
         }
 
-        private void CheckFunctionCallArgsForEqualCount(FunctionDef fDef, LatteParser.EFunCallContext fCall)
+        private void CheckFunctionCallArgsForEqualCount(FunctionDef fDef, LatteParser.ExprContext[] fExpr, string id, int line)
         {
-            var id = fCall.ID().GetText();
-
-            var argsWithExpr = fDef.Args.Zip(fCall.expr(), (arg, expr) => (arg, expr));
+            var argsWithExpr = fDef.Args.Zip(fExpr, (arg, expr) => (arg, expr));
             foreach (var (arg, expr) in argsWithExpr)
             {
                 if (!Visit(expr).Equals(arg.Type))
                 {
                     _errorState.AddErrorMessage(new ErrorMessage(
-                        fCall.start.Line,
+                        line,
                         expr.start.Column,
                         ErrorMessages.WrongArgTypeFuncCall(id, arg.Id, arg.Type.GetText())));
                 }

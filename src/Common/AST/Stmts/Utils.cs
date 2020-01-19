@@ -19,9 +19,9 @@ namespace Common.AST.Stmts
                 LatteParser.IncrContext incrContext => new Incr(incrContext),
                 LatteParser.RetContext retContext => new Ret(retContext),
                 LatteParser.SExpContext sExpContext => new ExpStmt(sExpContext),
-                LatteParser.StructAssContext structAssContext => throw new NotImplementedException(),
-                LatteParser.StructDecrContext structDecrContext => throw new NotImplementedException(),
-                LatteParser.StructIncrContext structIncrContext => throw new NotImplementedException(),
+                LatteParser.StructAssContext structAssContext => new StructAss(structAssContext),
+                LatteParser.StructDecrContext structDecrContext => new StructDecr(structDecrContext),
+                LatteParser.StructIncrContext structIncrContext => new StructIncr(structIncrContext),
                 LatteParser.VRetContext vRetContext => new Ret(vRetContext),
                 LatteParser.WhileContext whileContext => new While(whileContext),
                 _ => throw new ArgumentOutOfRangeException(nameof(context))

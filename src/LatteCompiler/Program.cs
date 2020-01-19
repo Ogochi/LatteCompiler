@@ -22,7 +22,52 @@ namespace LLVMCompiler
          */
         public static int Main(string[] args)
         {
-            //return RunProgramFromString("int main() {int x;printInt(x);return 0;}");
+            /*return RunProgramFromString(@"class list {
+            int elem;
+            list next;
+        }
+
+        int main() {
+            printInt(length(fromTo(1,50)));
+            printInt(length2(fromTo(1,100)));
+            return 0;
+        }
+
+        int head (list xs) {
+            return xs . elem;
+        }
+ 
+        list cons (int x, list xs) {
+            list n;
+            n = new list;
+            n.elem = x;
+            n.next = xs;
+            return n;
+        }
+
+        int length (list xs) {
+            if (xs==(list)null)
+                return 0;
+            else
+                return 1 + length (xs.next);
+        }
+
+        list fromTo (int m, int n) {
+            if (m>n)
+                return (list)null;
+            else 
+                return cons (m,fromTo (m+1,n));
+        }
+
+        int length2 (list xs) {
+            int res = 0;
+            while (xs != (list)null) {
+                res++;
+                xs = xs.next;
+            }
+            return res;
+        }
+        ");*/
             return RunProgramFromArgs(args);
         }
 
@@ -136,7 +181,8 @@ namespace LLVMCompiler
             }
 
             var programAst = new Common.AST.Program(program).WithPrefixedFunctions();
-            compilationResult = LlvmGenerator.LlvmGenerator.Instance.GenerateFromAst(programAst);
+            compilationResult = new List<string> {""};
+            //compilationResult = LlvmGenerator.LlvmGenerator.Instance.GenerateFromAst(programAst);
         }
     }
 }

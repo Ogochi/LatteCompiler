@@ -12,12 +12,17 @@ namespace Frontend.StateManagement
     {
         private readonly Stack<IDictionary<string, VarDef>> _previousScopeVarDefs  = new Stack<IDictionary<string, VarDef>>();
         
-        public IDictionary<string, FunctionDef> NameToFunctionDef { get; private set; } =
-            new Dictionary<string, FunctionDef>();
+        private readonly Stack<IDictionary<string, FunctionDef>> _previousScopeFuncDefs = new Stack<IDictionary<string, FunctionDef>>();
+        
+        public IDictionary<string, FunctionDef> NameToFunctionDef { get; private set; } = new Dictionary<string, FunctionDef>();
+        
+        public IDictionary<string, ClassDef> NameToClassDef { get; } = new Dictionary<string, ClassDef>();
         
         public IDictionary<string, VarDef> NameToVarDef { get; private set; } = new Dictionary<string, VarDef>();
 
         public string CurrentFunctionName { get; set; }
+        
+        public string CurrentClassName { get; set; }
         
         public static FrontendEnvironment Instance { get; } = new FrontendEnvironment();
 
@@ -28,6 +33,11 @@ namespace Frontend.StateManagement
         public void RestorePreviousVarEnv()
         {
             NameToVarDef = _previousScopeVarDefs.Pop();
+        }
+
+        public void RestorePreviousFuncEnv()
+        {
+            NameToFunctionDef = _previousScopeFuncDefs.Pop();
         }
 
         public void DetachVarEnv()
@@ -41,6 +51,18 @@ namespace Frontend.StateManagement
             }
         }
 
+        public void DetachFuncEnv()
+        {
+            _previousScopeFuncDefs.Push(NameToFunctionDef);
+            
+            NameToFunctionDef = new Dictionary<string, FunctionDef>();
+            foreach (var item in _previousScopeFuncDefs.Peek())
+            {
+                NameToFunctionDef[item.Key] = 
+                    new FunctionDef {Args = item.Value.Args, Block = item.Value.Block, Id = item.Value.Id, Type = item.Value.Type};
+            }
+        }
+
         public void AddTopDef(LatteParser.TopDefContext topDef)
         {
             switch (topDef)
@@ -50,7 +72,8 @@ namespace Frontend.StateManagement
                     break;
                 
                 case LatteParser.ClassDefContext classDef:
-                    throw new NotImplementedException();
+                    NameToClassDef[classDef.ID()[0].GetText()] = new ClassDef(classDef);
+                    break;
             }
         }
 
