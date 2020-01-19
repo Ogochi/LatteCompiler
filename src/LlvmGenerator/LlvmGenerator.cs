@@ -50,6 +50,13 @@ namespace LlvmGenerator
             FunctionsGlobalState.Instance.AddFunctions(program.Functions);
             FunctionsGlobalState.Instance.AddFunctions(ExternalFunctions());
             EmitExternalFunctionsDeclarations();
+            
+            var classGenerator = new ClassGenerator();
+            program.Classes.ToList().ForEach(@class =>
+            {
+                classGenerator.GenerateType(@class);
+                classGenerator.GenerateConstructor(@class);
+            });
 
             var functionGenerator = new FunctionGenerator();
             program.Functions.ToList().ForEach(function => functionGenerator.GenerateFromAst(function));

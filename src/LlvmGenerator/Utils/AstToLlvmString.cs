@@ -16,7 +16,7 @@ namespace LlvmGenerator.Utils
                 LatteParser.TBoolContext boolContext => "i1",
                 LatteParser.TIntContext intContext => "i32",
                 LatteParser.TStringContext stringContext => "i8*",
-                LatteParser.TTypeNameContext typeNameContext => "",
+                LatteParser.TTypeNameContext typeNameContext => $"%{typeNameContext.GetText()}*",
                 LatteParser.TVoidContext voidContext => "void",
                 _ => throw new ArgumentOutOfRangeException(nameof(typeContext))
             };

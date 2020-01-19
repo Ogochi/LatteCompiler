@@ -7,7 +7,7 @@ namespace Common.AST
     public class ClassDef
     {
         public virtual string Id { get; set; }
-        public virtual string ParentId { get; set; }
+        public string ParentId { get; set; }
         
         public Dictionary<string, Field> Fields { get; set; } = new Dictionary<string, Field>();
         
