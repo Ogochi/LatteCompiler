@@ -32,5 +32,7 @@ namespace Common.AST.Exprs
         public virtual Result Visit(NewObject newObject) { return default(Result); }
 
         public virtual Result Visit(Null @null) { return default(Result); }
+
+        public virtual Result Visit(ObjectField objectField) { return default(Result); }
     }
 }

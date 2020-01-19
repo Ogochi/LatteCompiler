@@ -51,6 +51,7 @@ namespace LlvmGenerator
             FunctionsGlobalState.Instance.AddFunctions(ExternalFunctions());
             EmitExternalFunctionsDeclarations();
             
+            FunctionsGlobalState.Instance.AddClasses(program.Classes);
             var classGenerator = new ClassGenerator();
             program.Classes.ToList().ForEach(@class =>
             {

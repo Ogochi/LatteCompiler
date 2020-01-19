@@ -25,6 +25,21 @@ namespace LlvmGenerator.Generators
             return new RegisterLabelContext("", _state.CurrentLabel, new LatteParser.TVoidContext());
         }
 
+        public override RegisterLabelContext Visit(ObjectField objectField)
+        {
+            string nextRegister1 = _state.NewRegister, nextRegister2 = _state.NewRegister;
+            var objectExpr = Visit(objectField.IdExpr);
+            var field = _globalState.NameToClass[objectExpr.Type.GetText()].Fields[objectField.FieldId];
+
+            _llvmGenerator.Emit($"{nextRegister1} = getelementptr %{objectExpr.Type.GetText()}, " +
+                                $"%{objectExpr.Type.GetText()}* {objectExpr.Register}, i32 0, i32 {field.Number}");
+            
+            _llvmGenerator.Emit($"{nextRegister2} = load {AstToLlvmString.Type(field.Type)}, " +
+                                $"{AstToLlvmString.Type(field.Type)}* {nextRegister1}");
+            
+            return new RegisterLabelContext(nextRegister2, _state.CurrentLabel, field.Type);
+        }
+
         public override RegisterLabelContext Visit(NewObject newObject)
         {
             var nextRegister = _state.NewRegister;

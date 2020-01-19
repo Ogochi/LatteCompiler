@@ -4,8 +4,11 @@ namespace Common.AST
 {
     public class Field : Arg
     {
-        public Field(LatteParser.TypeContext type, string id) : base(type, id)
+        public int Number { get; set; }
+        
+        public Field(LatteParser.TypeContext type, string id, int number) : base(type, id)
         {
+            Number = number;
         }
     }
 }

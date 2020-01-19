@@ -15,6 +15,11 @@ namespace LlvmGenerator.Utils
             return @null;
         }
 
+        public override Expr Visit(ObjectField objectField)
+        {
+            return objectField;
+        }
+
         public override Expr Visit(AddOp addOp)
         {
             return (addOp.Add, Visit(addOp.Lhs), Visit(addOp.Rhs)) switch

@@ -18,6 +18,7 @@ namespace Common.AST
             Id = context.ID()[0].GetText();
             ParentId = context.ID().Length > 1 ? context.ID()[1].GetText() : null;
 
+            int fieldCounter = 0;
             foreach (var fieldOrMethod in context.fieldOrMethodDef())
             {
                 switch (fieldOrMethod)
@@ -26,7 +27,7 @@ namespace Common.AST
                         fields.fieldDef().ID().ToList()
                             .ForEach(field =>
                             {
-                                Fields.Add(field.GetText(), new Field(fields.fieldDef().type(), field.GetText()));
+                                Fields.Add(field.GetText(), new Field(fields.fieldDef().type(), field.GetText(), fieldCounter++));
                             });
                         break;
                     

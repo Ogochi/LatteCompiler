@@ -8,6 +8,8 @@ namespace LlvmGenerator.StateManagement
     {
         public Dictionary<string, FunctionDef> NameToFunction { get; } = new Dictionary<string, FunctionDef>();
         
+        public Dictionary<string, ClassDef> NameToClass { get; } = new Dictionary<string, ClassDef>();
+        
         public readonly Dictionary<string, string> LiteralToStringConstId= new Dictionary<string, string>();
 
         public static FunctionsGlobalState Instance { get; } = new FunctionsGlobalState();
@@ -19,6 +21,11 @@ namespace LlvmGenerator.StateManagement
         public void AddFunctions(IList<FunctionDef> functions)
         {
             functions.ToList().ForEach(function => NameToFunction[function.Id] = function);
+        }
+
+        public void AddClasses(IList<ClassDef> classes)
+        {
+            classes.ToList().ForEach(@class => NameToClass[@class.Id] = @class);
         }
         
         public string NewString => $"@.str{_stringCounter++}";
