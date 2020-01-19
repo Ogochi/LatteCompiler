@@ -31,5 +31,6 @@ namespace Common.AST
         public virtual void Visit(Incr incr) {}
         
         public virtual void Visit(While @while) {}
+        public virtual void Visit(StructAss structAss) {}
     }
 }

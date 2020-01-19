@@ -17,6 +17,8 @@ namespace LlvmGenerator.StateManagement
         public string CurrentLabel = EntryLabel;
 
         public const string EntryLabel = "entry";
+
+        public string CurrentFunction;
         
         private readonly Stack<Dictionary<string, Dictionary<string, RegisterLabelContext>>> _previousScopeVars = 
             new Stack<Dictionary<string, Dictionary<string, RegisterLabelContext>>>();
@@ -28,6 +30,8 @@ namespace LlvmGenerator.StateManagement
 
         public FunctionGeneratorState(FunctionDef function)
         {
+            CurrentFunction = function.Id;
+            
             function.Args.ForEach(arg => VarToLabelToRegister.Add(
                 arg.Id,
                 new Dictionary<string, RegisterLabelContext> {{EntryLabel, new RegisterLabelContext(NewRegister, EntryLabel, arg.Type)}}));

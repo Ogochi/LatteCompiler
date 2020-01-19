@@ -5,6 +5,7 @@ using Common.AST.Exprs;
 using Common.AST.Stmts;
 using LlvmGenerator.StateManagement;
 using LlvmGenerator.Utils;
+using ParsingTools;
 
 namespace LlvmGenerator.Generators
 {
@@ -12,10 +13,30 @@ namespace LlvmGenerator.Generators
     {
         private readonly LlvmGenerator _llvmGenerator = LlvmGenerator.Instance;
         private readonly FunctionGeneratorState _state;
+        private readonly FunctionsGlobalState _globalState = FunctionsGlobalState.Instance;
         
         public StmtGeneratorVisitor(FunctionGeneratorState state)
         {
             _state = state;
+        }
+
+        public override void Visit(StructAss structAss)
+        {
+            var objectExpr = new ExpressionSimplifierVisitor().Visit(structAss.IdExpr);
+            var objectExprResult = new ExpressionGeneratorVisitor(_state).Visit(objectExpr);
+            
+            var expr = new ExpressionSimplifierVisitor().Visit(structAss.Expr);
+            var exprResult = new ExpressionGeneratorVisitor(_state).Visit(expr);
+
+            var nextRegister1 = _state.NewRegister;
+            var field = _globalState.NameToClass[objectExprResult.Type.GetText()].Fields[structAss.Id];
+            var fieldTypeString = objectExprResult.Type.GetText();
+            
+            _llvmGenerator.Emit($"{nextRegister1} = getelementptr %{fieldTypeString}, " +
+                                $"%{fieldTypeString}* {objectExprResult.Register}, i32 0, i32 {field.Number}");
+            
+            _llvmGenerator.Emit($"store {AstToLlvmString.Type(exprResult.Type)} {exprResult.Register}, " +
+                                $"{AstToLlvmString.Type(field.Type)}* {nextRegister1}");
         }
 
         public override void Visit(CondElse condElse)
@@ -194,7 +215,10 @@ namespace LlvmGenerator.Generators
             {
                 var expr = new ExpressionSimplifierVisitor().Visit(ret.Expr);
                 var exprResult = new ExpressionGeneratorVisitor(_state).Visit(expr);
-                toEmit += $"{AstToLlvmString.Type(exprResult.Type)} {exprResult.Register}";
+                toEmit += exprResult.Type is LatteParser.TVoidContext
+                    ? AstToLlvmString.Type(_globalState.NameToFunction[_state.CurrentFunction].Type)
+                    : AstToLlvmString.Type(exprResult.Type);
+                toEmit += $" {exprResult.Register}";
             }
             
             _llvmGenerator.Emit(toEmit);

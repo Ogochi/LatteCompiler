@@ -41,18 +41,18 @@ namespace LlvmGenerator.Generators
             {
                 if (!(field.Value.Type is LatteParser.TTypeNameContext))
                 {
-                    _llvmGenerator.Emit($"%{register} = getelementptr %{@classDef.Id}, %{@classDef.Id}* %this, i32 0, i32 {counter}");
+                    _llvmGenerator.Emit($"%r{register} = getelementptr %{@classDef.Id}, %{@classDef.Id}* %this, i32 0, i32 {counter}");
                     _llvmGenerator.Emit(
                         $"store {AstToLlvmString.Type(field.Value.Type)} " +
                         $"{(field.Value.Type is LatteParser.TStringContext ? emptyStr : "0")}, " +
-                        $"{AstToLlvmString.Type(field.Value.Type)}* %{register}");
+                        $"{AstToLlvmString.Type(field.Value.Type)}* %r{register}");
                 }
 
                 register++;
                 counter++;
             });
             
-            _llvmGenerator.Emit("ret");
+            _llvmGenerator.Emit("ret void");
             _llvmGenerator.Emit("}");
         }
 
