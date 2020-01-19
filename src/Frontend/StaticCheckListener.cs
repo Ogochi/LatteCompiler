@@ -219,17 +219,43 @@ namespace Frontend
 
         public override void EnterStructAss(LatteParser.StructAssContext context)
         {
-            base.EnterStructAss(context);
+            var expressionVisitor = new ExpressionTypeVisitor();
+            var objectType = expressionVisitor.GetFieldType(context.expr()[0], context.ID().GetText(), context.start.Line);
+            var exprType = new ExpressionTypeVisitor().Visit(context.expr()[1]);
+
+            if (!objectType.Equals(exprType) && !IsTypeParent(exprType, objectType))
+            {
+                StateUtils.InterruptWithMessage(
+                    context.start.Line,
+                    context.ID().Symbol.Column,
+                    ErrorMessages.FieldExprTypesMismatch(objectType.GetText(), context.ID().GetText()));
+            }
         }
 
-        public override void ExitStructDecr(LatteParser.StructDecrContext context)
+        public override void EnterStructDecr(LatteParser.StructDecrContext context)
         {
-            base.ExitStructDecr(context);
-        }
+            var objectType = new ExpressionTypeVisitor().GetFieldType(context.expr(), context.ID().GetText(), context.start.Line);
+
+            if (!objectType.Equals(new LatteParser.TIntContext()))
+            {
+                StateUtils.InterruptWithMessage(
+                    context.start.Line,
+                    context.ID().Symbol.Column,
+                    ErrorMessages.DecrFieldOnlyOnInt(objectType.GetText(), context.ID().GetText()));
+            }
+        } 
 
         public override void EnterStructIncr(LatteParser.StructIncrContext context)
         {
-            base.EnterStructIncr(context);
+            var objectType = new ExpressionTypeVisitor().GetFieldType(context.expr(), context.ID().GetText(), context.start.Line);
+
+            if (!objectType.Equals(new LatteParser.TIntContext()))
+            {
+                StateUtils.InterruptWithMessage(
+                    context.start.Line,
+                    context.ID().Symbol.Column,
+                    ErrorMessages.DecrFieldOnlyOnInt(objectType.GetText(), context.ID().GetText()));
+            }
         }
 
         public override void EnterRet(LatteParser.RetContext context)

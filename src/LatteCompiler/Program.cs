@@ -182,7 +182,7 @@ namespace LLVMCompiler
 
             var programAst = new Common.AST.Program(program).WithPrefixedFunctions();
             compilationResult = new List<string> {""};
-            //compilationResult = LlvmGenerator.LlvmGenerator.Instance.GenerateFromAst(programAst);
+            compilationResult = LlvmGenerator.LlvmGenerator.Instance.GenerateFromAst(programAst);
         }
     }
 }

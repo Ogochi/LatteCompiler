@@ -214,14 +214,18 @@ namespace Frontend.ContextVisitor
 
         public override LatteParser.TypeContext VisitEObjectField(LatteParser.EObjectFieldContext context)
         {
-            var exprType = Visit(context.expr());
+            return GetFieldType(context.expr(), context.ID().GetText(), context.start.Line);
+        }
+
+        public LatteParser.TypeContext GetFieldType(LatteParser.ExprContext objectExpr, string fieldId, int line)
+        {
+            var exprType = Visit(objectExpr);
             var classDef = _environment.NameToClassDef[exprType.GetText()];
-            var fieldId = context.ID().GetText();
-            
+
             if (!ClassHasField(classDef, fieldId, out var field))
             {
                 Utils.StateUtils.InterruptWithMessage(
-                    context.start.Line, 
+                    line, 
                     ErrorMessages.ClassFieldNotExist(exprType.GetText(), fieldId));
             }
 

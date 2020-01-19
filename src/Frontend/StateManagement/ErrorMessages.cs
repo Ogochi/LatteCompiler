@@ -26,6 +26,10 @@ namespace Frontend.StateManagement
         public static string VarExprTypesMismatch(string id) => $"Types mismatch for variable '{id}' and assigned expression.";
         public static string DecrOnlyOnInt(string id) => $"Tried to decrement '{id}', which is not integer variable.";
         public static string IncrOnlyOnInt(string id) => $"Tried to increment '{id}', which is not integer variable.";
+        public static string DecrFieldOnlyOnInt(string @class, string field) => 
+            $"Tried to decrement field '{field}' of class '{@class}', which is not integer variable.";
+        public static string IncrFieldOnlyOnInt(string @class, string field) => 
+            $"Tried to increment field '{field}' of class '{@class}', which is not integer variable.";
         public static string WhileWrongCondition = "While condition can be only boolean expression.";
         public static string WrongReturn(string badType, string goodType, string funcId) => 
             $"Tried to return expression of type '{badType}' in function '{funcId}' with type '{goodType}'.";
@@ -46,5 +50,8 @@ namespace Frontend.StateManagement
 
         public static string ParentNorDefinedException(string classDefId, string classDefParentId) => 
             $"In '{classDefId}' class definition is mentioned not existing parent class '{classDefParentId}'.";
+
+        public static string FieldExprTypesMismatch(string @class, string field) => 
+            $"Types mismatch for field '{field}' for object of class '{@class}' and assigned expression.";
     }
 }
