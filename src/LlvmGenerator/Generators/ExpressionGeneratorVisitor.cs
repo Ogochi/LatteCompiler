@@ -22,7 +22,7 @@ namespace LlvmGenerator.Generators
 
         public override RegisterLabelContext Visit(Null @null)
         {
-            return new RegisterLabelContext("", _state.CurrentLabel, new LatteParser.TVoidContext());
+            return new RegisterLabelContext("null", _state.CurrentLabel, new LatteParser.TVoidContext());
         }
 
         public override RegisterLabelContext Visit(ObjectField objectField)
