@@ -27,7 +27,7 @@ namespace LlvmGenerator.Generators
 
         public void GenerateConstructor(ClassDef @classDef)
         {
-            _llvmGenerator.Emit($"define void @g_{@classDef.Id}_construct(%{@classDef.Id} %this) " + "{");
+            _llvmGenerator.Emit($"define void @g_{@classDef.Id}_construct(%{@classDef.Id}* %this) " + "{");
 
             int register = 0, counter = 0;
             if (!_globalState.LiteralToStringConstId.ContainsKey(""))

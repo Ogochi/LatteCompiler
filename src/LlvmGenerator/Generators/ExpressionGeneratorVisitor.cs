@@ -20,6 +20,21 @@ namespace LlvmGenerator.Generators
             _state = state;
         }
 
+        public override RegisterLabelContext Visit(Null @null)
+        {
+            return new RegisterLabelContext("", _state.CurrentLabel, new LatteParser.TVoidContext());
+        }
+
+        public override RegisterLabelContext Visit(NewObject newObject)
+        {
+            var nextRegister = _state.NewRegister;
+            _llvmGenerator.Emit($"{nextRegister} = alloca %{newObject.Type.GetText()}");
+            _llvmGenerator.Emit(
+                $"call void @g_{newObject.Type.GetText()}_construct(%{newObject.Type.GetText()}* {nextRegister})");
+            
+            return new RegisterLabelContext(nextRegister, _state.CurrentLabel, newObject.Type);
+        }
+
         public override RegisterLabelContext Visit(AddOp addOp)
         {
             var c1 = Visit(addOp.Lhs);

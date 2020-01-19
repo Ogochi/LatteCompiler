@@ -5,6 +5,16 @@ namespace LlvmGenerator.Utils
 {
     public class ExpressionSimplifierVisitor : BaseExprAstVisitor<Expr>
     {
+        public override Expr Visit(NewObject newObject)
+        {
+            return newObject;
+        }
+
+        public override Expr Visit(Null @null)
+        {
+            return @null;
+        }
+
         public override Expr Visit(AddOp addOp)
         {
             return (addOp.Add, Visit(addOp.Lhs), Visit(addOp.Rhs)) switch

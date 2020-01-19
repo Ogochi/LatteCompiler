@@ -28,5 +28,9 @@ namespace Common.AST.Exprs
         public virtual Result Visit(Str str) { return default(Result); }
         
         public virtual Result Visit(UnOp unOp) { return default(Result); }
+        
+        public virtual Result Visit(NewObject newObject) { return default(Result); }
+
+        public virtual Result Visit(Null @null) { return default(Result); }
     }
 }
