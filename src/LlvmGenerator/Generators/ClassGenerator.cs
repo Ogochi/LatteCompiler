@@ -28,16 +28,22 @@ namespace LlvmGenerator.Generators
         public void GenerateConstructor(ClassDef @classDef)
         {
             _llvmGenerator.Emit($"define void @g_{@classDef.Id}_construct(%{@classDef.Id}* %this) " + "{");
-
-            int register = 0, counter = 0;
+            
             if (!_globalState.LiteralToStringConstId.ContainsKey(""))
             {
                 _globalState.LiteralToStringConstId[""] = _globalState.NewString;
             }
-
             var emptyStr = _globalState.LiteralToStringConstId[""];
-
-            @classDef.Fields.ToList().ForEach(field =>
+            
+            int register = 0, counter = @classDef.OwnFieldsStartIndex;
+            if (counter > 0)
+            {
+                _llvmGenerator.Emit($"%r{register} = bitcast %{@classDef.Id}* %this to %{@classDef.ParentId}*");
+                _llvmGenerator.Emit($"call void @g_{@classDef.ParentId}_construct(%{@classDef.ParentId}* %r{register})");
+                register++;
+            }
+            
+            @classDef.Fields.Skip(counter).ToList().ForEach(field =>
             {
                 _llvmGenerator.Emit($"%r{register} = getelementptr %{@classDef.Id}, %{@classDef.Id}* %this, i32 0, i32 {counter}");
                 _llvmGenerator.Emit(

@@ -12,6 +12,8 @@ namespace Common.AST
         public Dictionary<string, Field> Fields { get; set; } = new Dictionary<string, Field>();
         
         public Dictionary<string, FunctionDef> Methods { get; set; } = new Dictionary<string, FunctionDef>();
+
+        public int OwnFieldsStartIndex = 0;
         
         public ClassDef(LatteParser.ClassDefContext context)
         {
@@ -40,6 +42,7 @@ namespace Common.AST
 
         public void AddParentFields(List<Field> fields)
         {
+            OwnFieldsStartIndex += fields.Count;
             Fields.Values.ToList().ForEach(field => field.Number += fields.Count);
             
             fields.ForEach(field => Fields[field.Id] = field);
