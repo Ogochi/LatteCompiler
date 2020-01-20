@@ -42,12 +42,15 @@ namespace LlvmGenerator.Generators
 
         public override RegisterLabelContext Visit(NewObject newObject)
         {
-            var nextRegister = _state.NewRegister;
-            _llvmGenerator.Emit($"{nextRegister} = alloca %{newObject.Type.GetText()}");
-            _llvmGenerator.Emit(
-                $"call void @g_{newObject.Type.GetText()}_construct(%{newObject.Type.GetText()}* {nextRegister})");
+            string nextRegister1 = _state.NewRegister, nextRegister2 = _state.NewRegister;
+            var @class = _globalState.NameToClass[newObject.Type.GetText()];
             
-            return new RegisterLabelContext(nextRegister, _state.CurrentLabel, newObject.Type);
+            _llvmGenerator.Emit($"{nextRegister1} = call i8* @mmalloc(i32 {new SizeHelper().GetClassSize(@class)})");
+            _llvmGenerator.Emit($"{nextRegister2} = bitcast i8* {nextRegister1} to %{newObject.Type.GetText()}*");
+            _llvmGenerator.Emit(
+                $"call void @g_{newObject.Type.GetText()}_construct(%{newObject.Type.GetText()}* {nextRegister2})");
+            
+            return new RegisterLabelContext(nextRegister2, _state.CurrentLabel, newObject.Type);
         }
 
         public override RegisterLabelContext Visit(AddOp addOp)
@@ -119,18 +122,18 @@ namespace LlvmGenerator.Generators
 
             toEmit.Append($"call {AstToLlvmString.Type(function.Type)} @{function.Id}(");
 
-            var isFirstArg = true;
+            var argNum = 0;
             foreach (var expr in funCall.Exprs)
             {
-                if (!isFirstArg)
+                if (argNum > 0)
                 {
                     toEmit.Append(", ");
                 }
 
                 var exprResult = Visit(expr);
-                toEmit.Append($"{AstToLlvmString.Type(exprResult.Type)} {exprResult.Register}");
-                
-                isFirstArg = false;
+                toEmit.Append($"{AstToLlvmString.Type(function.Args[argNum].Type)} {exprResult.Register}");
+
+                argNum++;
             }
             
             toEmit.Append(")");

@@ -39,14 +39,17 @@ namespace LlvmGenerator.Generators
 
             @classDef.Fields.ToList().ForEach(field =>
             {
-                if (!(field.Value.Type is LatteParser.TTypeNameContext))
-                {
-                    _llvmGenerator.Emit($"%r{register} = getelementptr %{@classDef.Id}, %{@classDef.Id}* %this, i32 0, i32 {counter}");
-                    _llvmGenerator.Emit(
-                        $"store {AstToLlvmString.Type(field.Value.Type)} " +
-                        $"{(field.Value.Type is LatteParser.TStringContext ? emptyStr : "0")}, " +
-                        $"{AstToLlvmString.Type(field.Value.Type)}* %r{register}");
-                }
+                _llvmGenerator.Emit($"%r{register} = getelementptr %{@classDef.Id}, %{@classDef.Id}* %this, i32 0, i32 {counter}");
+                _llvmGenerator.Emit(
+                    $"store {AstToLlvmString.Type(field.Value.Type)} " +
+                    $@"{(field.Value.Type switch
+                    {
+                        LatteParser.TStringContext _ => emptyStr,
+                        LatteParser.TTypeNameContext _ => "null",
+                        _ => "0"
+                        
+                    })}, " +
+                    $"{AstToLlvmString.Type(field.Value.Type)}* %r{register}");
 
                 register++;
                 counter++;

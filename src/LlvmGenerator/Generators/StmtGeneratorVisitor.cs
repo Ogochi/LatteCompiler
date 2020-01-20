@@ -123,6 +123,8 @@ namespace LlvmGenerator.Generators
 
         public override void Visit(Cond cond)
         {
+            _state.ConsolidateVariables();
+            
             var expr = new ExpressionSimplifierVisitor().Visit(cond.Expr);
             if (expr is Bool b)
             {
