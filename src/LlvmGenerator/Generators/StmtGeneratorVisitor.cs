@@ -201,8 +201,24 @@ namespace LlvmGenerator.Generators
             var expr = new ExpressionSimplifierVisitor().Visit(ass.Expr);
             var exprResult = new ExpressionGeneratorVisitor(_state).Visit(expr);
 
-            _state.VarToLabelToRegister[ass.Id] = 
-                new Dictionary<string, RegisterLabelContext> {{exprResult.Label, exprResult}};
+            if (_state.VarToLabelToRegister.ContainsKey(ass.Id))
+            {
+                _state.VarToLabelToRegister[ass.Id] = 
+                    new Dictionary<string, RegisterLabelContext> {{exprResult.Label, exprResult}};
+            }
+            else
+            {
+                var classDef = _globalState.CurrentClass;
+                var field = classDef.Fields[ass.Id];
+                var selfRegister = _state.VarToLabelToRegister["self"].Values.ToList()[0].Register;
+
+                var nextRegister = _state.NewRegister;
+
+                _llvmGenerator.Emit(
+                    $"{nextRegister} = getelementptr %{classDef.Id}, %{classDef.Id}* {selfRegister}, i32 0, i32 {field.Number}");
+                _llvmGenerator.Emit($"store {AstToLlvmString.Type(field.Type)} {exprResult.Register}, " +
+                                    $"{AstToLlvmString.Type(field.Type)}* {nextRegister}");
+            }
         }
         
         public override void Visit(Ret ret)

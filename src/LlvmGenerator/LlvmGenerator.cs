@@ -51,19 +51,27 @@ namespace LlvmGenerator
             _globalState.AddFunctions(program.Functions);
             _globalState.AddFunctions(ExternalFunctions());
             EmitExternalFunctionsDeclarations();
-            
+
             _globalState.AddClasses(program.Classes);
             _globalState.AddParentFields(program.Classes.ToList());
-            
+
             var classGenerator = new ClassGenerator();
             program.Classes.ToList().ForEach(@class =>
             {
                 classGenerator.GenerateType(@class);
                 classGenerator.GenerateConstructor(@class);
             });
+            program.Classes.ToList().ForEach(classGenerator.GenerateMethods);
 
             var functionGenerator = new FunctionGenerator();
-            program.Functions.ToList().ForEach(function => functionGenerator.GenerateFromAst(function));
+            program.Functions.ToList().ForEach(function =>
+            {
+                if (function.IsMethod)
+                {
+                    return;
+                }
+                functionGenerator.GenerateFromAst(function);
+            });
 
             EmitStringConsts();
             

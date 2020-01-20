@@ -13,10 +13,14 @@ namespace LlvmGenerator.StateManagement
         
         public readonly Dictionary<string, string> LiteralToStringConstId= new Dictionary<string, string>();
 
+        public string currentClass;
+
+        public ClassDef CurrentClass => NameToClass[currentClass];
+        
         public static FunctionsGlobalState Instance { get; } = new FunctionsGlobalState();
         
         private int _stringCounter;
-        
+
         private FunctionsGlobalState() {}
 
         public void AddFunctions(IList<FunctionDef> functions)

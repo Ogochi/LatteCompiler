@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Common.AST.Exprs;
@@ -18,6 +17,35 @@ namespace LlvmGenerator.Generators
         public ExpressionGeneratorVisitor(FunctionGeneratorState state)
         {
             _state = state;
+        }
+
+        public override RegisterLabelContext Visit(MethodCall methodCall)
+        {
+            var objectExpr = Visit(methodCall.IdExpr);
+            var objectClass = _globalState.NameToClass[objectExpr.Type.GetText()];
+            var classWithMethod = objectClass;
+
+            while (!classWithMethod.Methods.ContainsKey(methodCall.Id))
+            {
+                classWithMethod = _globalState.NameToClass[classWithMethod.ParentId];
+            }
+
+            if (objectClass.Id != classWithMethod.Id)
+            {
+                var nextRegister = _state.NewRegister;
+                _llvmGenerator.Emit(
+                    $"{nextRegister} = bitcast %{objectClass.Id}* {objectExpr.Register} to %{classWithMethod.Id}*");
+                objectExpr.Register = nextRegister;
+                objectExpr.Type = new LatteParser.TTypeNameContext(classWithMethod.Id);
+            }
+
+            return VisitFunctionCall(
+                new FunCall
+                {
+                    Id = new ClassHelper().ClassMethodToFunctionName(classWithMethod.Id, methodCall.Id), 
+                    Exprs = methodCall.Exprs
+                },
+                objectExpr);
         }
 
         public override RegisterLabelContext Visit(Null @null)
@@ -110,7 +138,13 @@ namespace LlvmGenerator.Generators
 
         public override RegisterLabelContext Visit(FunCall funCall)
         {
-            var function = _globalState.NameToFunction[AstToLlvmString.FunctionName(funCall.Id)];
+            return VisitFunctionCall(funCall);
+        }
+
+        private RegisterLabelContext VisitFunctionCall(FunCall funCall, RegisterLabelContext selfRegister = null)
+        {
+            var functionName = selfRegister == null ? AstToLlvmString.FunctionName(funCall.Id) : funCall.Id;
+            var function = _globalState.NameToFunction[functionName];
             
             var toEmit = new StringBuilder();
             var nextRegister = "";
@@ -135,6 +169,16 @@ namespace LlvmGenerator.Generators
 
                 argNum++;
             }
+
+            if (selfRegister != null)
+            {
+                if (argNum > 0)
+                {
+                    toEmit.Append(", ");
+                }
+                
+                toEmit.Append($"{AstToLlvmString.Type(selfRegister.Type)} {selfRegister.Register}");
+            }
             
             toEmit.Append(")");
             _llvmGenerator.Emit(toEmit.ToString());
@@ -143,30 +187,46 @@ namespace LlvmGenerator.Generators
 
         public RegisterLabelContext VisitID(ID id, string registerOverride = null)
         {
-            var values = _state.VarToLabelToRegister[id.Id].Values.ToList();
-
-            if (values.Count == 1)
+            if (_state.VarToLabelToRegister.ContainsKey(id.Id))
             {
-                return new RegisterLabelContext(values[0].Register, _state.CurrentLabel, values[0].Type);
-            }
+                var values = _state.VarToLabelToRegister[id.Id].Values.ToList();
 
-            var phi = new StringBuilder();
-            var isFirst = true;
-            foreach (var value in values)
-            {
-                if (!isFirst)
+                if (values.Count == 1)
                 {
-                    phi.Append(", ");
+                    return new RegisterLabelContext(values[0].Register, _state.CurrentLabel, values[0].Type);
                 }
-                isFirst = false;
 
-                phi.Append($"[{value.Register}, %{value.Label}]");
+                var phi = new StringBuilder();
+                var isFirst = true;
+                foreach (var value in values)
+                {
+                    if (!isFirst)
+                    {
+                        phi.Append(", ");
+                    }
+
+                    isFirst = false;
+
+                    phi.Append($"[{value.Register}, %{value.Label}]");
+                }
+
+                string nextRegister = registerOverride ?? _state.NewRegister;
+                _llvmGenerator.Emit($"{nextRegister} = phi {AstToLlvmString.Type(values[0].Type)} {phi}");
+
+                return new RegisterLabelContext(nextRegister, _state.CurrentLabel, values[0].Type);
             }
-            
-            var nextRegister = registerOverride ?? _state.NewRegister;
-            _llvmGenerator.Emit($"{nextRegister} = phi {AstToLlvmString.Type(values[0].Type)} {phi}");
-            
-            return new RegisterLabelContext(nextRegister, _state.CurrentLabel, values[0].Type);
+
+            var classDef = _globalState.NameToClass[_globalState.currentClass];
+            var selfRegister = _state.VarToLabelToRegister["self"].Values.ToList()[0].Register;
+            var field = classDef.Fields[id.Id];
+            string nextRegister1 = _state.NewRegister, nextRegister2 = _state.NewRegister;
+
+            _llvmGenerator.Emit(
+                $"{nextRegister1} = getelementptr %{classDef.Id}, %{classDef.Id}* {selfRegister}, i32 0, i32 {field.Number}");
+            _llvmGenerator.Emit(
+                $"{nextRegister2} = load {AstToLlvmString.Type(field.Type)}, {AstToLlvmString.Type(field.Type)}* {nextRegister1}");
+                
+            return new RegisterLabelContext(nextRegister2, _state.CurrentLabel, field.Type);
         }
 
         public override RegisterLabelContext Visit(ID id)

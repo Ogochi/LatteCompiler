@@ -65,9 +65,17 @@ namespace LlvmGenerator.Generators
             _llvmGenerator.Emit("}");
         }
 
-        public void GenerateMethods(ClassDef @classDef)
+        public void GenerateMethods(ClassDef classDef)
         {
+            _globalState.currentClass = classDef.Id;
+            classDef.Methods.Values.ToList().ForEach(method =>
+            {
+                method.Id = new ClassHelper().ClassMethodToFunctionName(classDef.Id, method.Id);
+                method.Args.Add(new Arg(new LatteParser.TTypeNameContext(classDef.Id), "self"));
+                _globalState.NameToFunction[method.Id] = method;
+            });
             
+            classDef.Methods.Values.ToList().ForEach(new FunctionGenerator().GenerateFromAst);
         }
     }
 }

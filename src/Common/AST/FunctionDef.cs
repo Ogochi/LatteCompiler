@@ -12,6 +12,10 @@ namespace Common.AST
         public Block Block { get; set; }
         public List<Arg> Args { get; set; }
 
+        public bool IsMethod = false;
+        
+        public string ClassName { get; set; }
+
         public FunctionDef(LatteParser.FunctionDefContext context)
         {
             Type = context.type();
@@ -32,6 +36,7 @@ namespace Common.AST
 
         public FunctionDef(LatteParser.MethodDefContext context)
         {
+            IsMethod = true;
             Type = context.type();
             Id = context.ID().GetText();
             Block = new Block(context.block());

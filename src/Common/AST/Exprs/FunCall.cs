@@ -7,7 +7,11 @@ namespace Common.AST.Exprs
     public class FunCall : Expr
     {
         public string Id { get; set; }
-        public IList<Expr> Exprs { get; } = new List<Expr>();
+        public IList<Expr> Exprs { get; set; } = new List<Expr>();
+
+        public FunCall()
+        {
+        }
 
         public FunCall(LatteParser.EFunCallContext context)
         {

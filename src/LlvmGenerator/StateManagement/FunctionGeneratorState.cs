@@ -27,11 +27,13 @@ namespace LlvmGenerator.StateManagement
             new Stack<Dictionary<string, Dictionary<string, RegisterLabelContext>>>();
 
         private int _registerCounter, _labelCounter;
+        
+        private readonly FunctionsGlobalState _globalState = FunctionsGlobalState.Instance;
 
         public FunctionGeneratorState(FunctionDef function)
         {
             CurrentFunction = function.Id;
-            
+
             function.Args.ForEach(arg => VarToLabelToRegister.Add(
                 arg.Id,
                 new Dictionary<string, RegisterLabelContext> {{EntryLabel, new RegisterLabelContext(NewRegister, EntryLabel, arg.Type)}}));

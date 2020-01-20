@@ -34,7 +34,7 @@ namespace Common.AST
                         break;
                     
                     case LatteParser.ClassMethodDefContext method:
-                        Methods.Add(method.methodDef().ID().GetText(), new FunctionDef(method.methodDef()));
+                        Methods.Add(method.methodDef().ID().GetText(), new FunctionDef(method.methodDef()) {ClassName = Id});
                         break;
                 }
             }

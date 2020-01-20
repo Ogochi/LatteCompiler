@@ -16,6 +16,11 @@ namespace LlvmGenerator.Utils
             return classDef.Fields.Values.Select(field => GetTypeSize(field.Type)).Sum();
         }
 
+        public string ClassMethodToFunctionName(string classId, string methodId)
+        {
+            return $"m_{classId}.{methodId}";
+        }
+
         public List<ClassDef> TopoSortClasses(List<ClassDef> classDefs)
         {
             var classNodes = GetClassNodes(classDefs);
