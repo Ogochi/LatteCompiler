@@ -53,7 +53,7 @@
         <Compile Include="StateManagement\RegisterLabelContext.cs" />
         <Compile Include="Utils\AstToLlvmString.cs" />
         <Compile Include="Utils\ExpressionSimplifierVisitor.cs" />
-        <Compile Include="Utils\SizeHelper.cs" />
+        <Compile Include="Utils\ClassHelper.cs" />
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\Common\Common.csproj">

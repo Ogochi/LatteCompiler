@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Common.AST;
+using LlvmGenerator.Utils;
 
 namespace LlvmGenerator.StateManagement
 {
@@ -29,5 +30,18 @@ namespace LlvmGenerator.StateManagement
         }
         
         public string NewString => $"@.str{_stringCounter++}";
+
+        public void AddParentFields(List<ClassDef> classes)
+        {
+            new ClassHelper().TopoSortClasses(classes).ForEach(@class =>
+            {
+                if (@class.ParentId == null)
+                {
+                    return;
+                }
+
+                @class.AddParentFields(NameToClass[@class.ParentId].Fields.Values.ToList());
+            });
+        }
     }
 }

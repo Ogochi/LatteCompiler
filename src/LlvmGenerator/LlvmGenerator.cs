@@ -10,6 +10,7 @@ namespace LlvmGenerator
     public class LlvmGenerator
     {
         public static LlvmGenerator Instance { get; } = new LlvmGenerator();
+        private readonly FunctionsGlobalState _globalState = FunctionsGlobalState.Instance;
         
         private List<string> EmittedCode = new List<string>(); 
         
@@ -47,11 +48,13 @@ namespace LlvmGenerator
 
         public List<string> GenerateFromAst(Program program)
         {
-            FunctionsGlobalState.Instance.AddFunctions(program.Functions);
-            FunctionsGlobalState.Instance.AddFunctions(ExternalFunctions());
+            _globalState.AddFunctions(program.Functions);
+            _globalState.AddFunctions(ExternalFunctions());
             EmitExternalFunctionsDeclarations();
             
-            FunctionsGlobalState.Instance.AddClasses(program.Classes);
+            _globalState.AddClasses(program.Classes);
+            _globalState.AddParentFields(program.Classes.ToList());
+            
             var classGenerator = new ClassGenerator();
             program.Classes.ToList().ForEach(@class =>
             {

@@ -37,5 +37,12 @@ namespace Common.AST
                 }
             }
         }
+
+        public void AddParentFields(List<Field> fields)
+        {
+            Fields.Values.ToList().ForEach(field => field.Number += fields.Count);
+            
+            fields.ForEach(field => Fields[field.Id] = field);
+        }
     }
 }

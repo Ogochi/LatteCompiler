@@ -45,7 +45,7 @@ namespace LlvmGenerator.Generators
             string nextRegister1 = _state.NewRegister, nextRegister2 = _state.NewRegister;
             var @class = _globalState.NameToClass[newObject.Type.GetText()];
             
-            _llvmGenerator.Emit($"{nextRegister1} = call i8* @mmalloc(i32 {new SizeHelper().GetClassSize(@class)})");
+            _llvmGenerator.Emit($"{nextRegister1} = call i8* @mmalloc(i32 {new ClassHelper().GetClassSize(@class)})");
             _llvmGenerator.Emit($"{nextRegister2} = bitcast i8* {nextRegister1} to %{newObject.Type.GetText()}*");
             _llvmGenerator.Emit(
                 $"call void @g_{newObject.Type.GetText()}_construct(%{newObject.Type.GetText()}* {nextRegister2})");
