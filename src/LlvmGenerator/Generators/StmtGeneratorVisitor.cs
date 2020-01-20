@@ -20,6 +20,16 @@ namespace LlvmGenerator.Generators
             _state = state;
         }
 
+        public override void Visit(StructIncr structIncr)
+        {
+            Visit(new StructAss {IdExpr = structIncr.IdExpr, Id = structIncr.Id, Expr = new Int {Value = 1}});
+        }
+
+        public override void Visit(StructDecr structDecr)
+        {
+            Visit(new StructAss {IdExpr = structDecr.IdExpr, Id = structDecr.Id, Expr = new Int {Value = -1}});
+        }
+
         public override void Visit(StructAss structAss)
         {
             var objectExpr = new ExpressionSimplifierVisitor().Visit(structAss.IdExpr);

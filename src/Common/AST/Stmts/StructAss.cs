@@ -11,6 +11,10 @@ namespace Common.AST.Stmts
         
         public string Id { get; set; }
 
+        public StructAss()
+        {
+        }
+
         public StructAss(LatteParser.StructAssContext context)
         {
             IdExpr = Exprs.Utils.ExprFromExprContext(context.expr()[0]);
