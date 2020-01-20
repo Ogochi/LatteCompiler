@@ -438,6 +438,11 @@ namespace Frontend
 
         private bool IsTypeParent(LatteParser.TypeContext type, LatteParser.TypeContext parentToCheck)
         {
+            if (!(type is LatteParser.TTypeNameContext))
+            {
+                return false;
+            }
+            
             var classDef = _environment.NameToClassDef[type.GetText()];
             if (classDef.ParentId == null)
             {

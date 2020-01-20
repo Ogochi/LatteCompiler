@@ -22,52 +22,25 @@ namespace LLVMCompiler
          */
         public static int Main(string[] args)
         {
-            /*return RunProgramFromString(@"class list {
-            int elem;
-            list next;
-        }
+            /*return RunProgramFromString(@"int main () {
+  Counter c;
+  c = new Counter;
+  c.incr();
+  c.incr();
+  c.incr();
+  int x = c.value();
+  printInt(x);
+  return 0;
+}
 
-        int main() {
-            printInt(length(fromTo(1,50)));
-            printInt(length2(fromTo(1,100)));
-            return 0;
-        }
+class Counter {
+  int val;
 
-        int head (list xs) {
-            return xs . elem;
-        }
- 
-        list cons (int x, list xs) {
-            list n;
-            n = new list;
-            n.elem = x;
-            n.next = xs;
-            return n;
-        }
+  void incr () {val++; return;}
 
-        int length (list xs) {
-            if (xs==(list)null)
-                return 0;
-            else
-                return 1 + length (xs.next);
-        }
+  int value () {return val;}
 
-        list fromTo (int m, int n) {
-            if (m>n)
-                return (list)null;
-            else 
-                return cons (m,fromTo (m+1,n));
-        }
-
-        int length2 (list xs) {
-            int res = 0;
-            while (xs != (list)null) {
-                res++;
-                xs = xs.next;
-            }
-            return res;
-        }
-        ");*/
+}");*/
             return RunProgramFromArgs(args);
         }
 
@@ -181,7 +154,6 @@ namespace LLVMCompiler
             }
 
             var programAst = new Common.AST.Program(program).WithPrefixedFunctions();
-            compilationResult = new List<string> {""};
             compilationResult = LlvmGenerator.LlvmGenerator.Instance.GenerateFromAst(programAst);
         }
     }
