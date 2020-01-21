@@ -41,41 +41,29 @@ done
 rm $BASE_TESTS/*.bc
 
 printf "\n\t---EXTENSION TESTS---\n"
-for f in $EXT_TESTS/struct/*.lat
+
+declare -a tests_arr=("struct" "objects1" "objects2")
+
+for test_dir in "${tests_arr[@]}"
 do
-        ./latc_llvm $f
+	for f in $EXT_TESTS/$test_dir/*.lat
+	do
+        	./latc_llvm $f
 
-        lli ${f: : -4}.bc > out.tmp 2> /dev/null
-        LLIRES=$?
+        	lli ${f: : -4}.bc > out.tmp 2> /dev/null
+        	LLIRES=$?
 
-        DIFF=$(diff out.tmp ${f: : -4}.output)
-        if [ "$DIFF" != "" ] || [ $LLIRES != 0 ]
-        then
-                 printf "Test $f failed.\n"
-        else
-                printf '\e[1;34m%-6s\e[m\n' "Test $f succeeded!"
-                rm ${f: : -4}.ll
-        fi
+        	DIFF=$(diff out.tmp ${f: : -4}.output)
+        	if [ "$DIFF" != "" ] || [ $LLIRES != 0 ]
+        	then
+                	 printf "Test $f failed.\n"
+        	else
+                	printf '\e[1;34m%-6s\e[m\n' "Test $f succeeded!"
+                	rm ${f: : -4}.ll
+        	fi
+	done
+	rm $EXT_TESTS/$test_dir/*.bc
 done
-rm $EXT_TESTS/struct/*.bc
-
-for f in $EXT_TESTS/objects1/*.lat
-do
-        ./latc_llvm $f
-
-        lli ${f: : -4}.bc > out.tmp 2> /dev/null
-        LLIRES=$?
-
-        DIFF=$(diff out.tmp ${f: : -4}.output)
-        if [ "$DIFF" != "" ] || [ $LLIRES != 0 ]
-        then
-                 printf "Test $f failed.\n"
-        else
-                printf '\e[1;34m%-6s\e[m\n' "Test $f succeeded!"
-                rm ${f: : -4}.ll
-        fi
-done
-rm $EXT_TESTS/objects1/*.bc
 
 rm out.tmp
 
