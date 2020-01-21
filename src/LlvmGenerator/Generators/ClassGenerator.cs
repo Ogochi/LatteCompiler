@@ -76,10 +76,7 @@ namespace LlvmGenerator.Generators
                 _globalState.LiteralToStringConstId[""] = _globalState.NewString;
             }
             var emptyStr = _globalState.LiteralToStringConstId[""];
-            
-            _llvmGenerator.Emit($"%r0 = getelementptr %{@classDef.Id}, %{@classDef.Id}* %this, i32 0, i32 0");
-            _llvmGenerator.Emit($"store %{@classDef.Id}_vtable* @{@classDef.Id}_vtable_ptrs, %{@classDef.Id}_vtable** %r0");
-            
+
             int register = 1, counter = @classDef.OwnFieldsStartIndex;
             if (counter > 0)
             {
@@ -87,6 +84,9 @@ namespace LlvmGenerator.Generators
                 _llvmGenerator.Emit($"call void @g_{@classDef.ParentId}_construct(%{@classDef.ParentId}* %r{register})");
                 register++;
             }
+            
+            _llvmGenerator.Emit($"%r0 = getelementptr %{@classDef.Id}, %{@classDef.Id}* %this, i32 0, i32 0");
+            _llvmGenerator.Emit($"store %{@classDef.Id}_vtable* @{@classDef.Id}_vtable_ptrs, %{@classDef.Id}_vtable** %r0");
             
             @classDef.Fields.Skip(counter).ToList().ForEach(field =>
             {
