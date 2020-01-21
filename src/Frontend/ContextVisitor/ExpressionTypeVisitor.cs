@@ -153,7 +153,7 @@ namespace Frontend.ContextVisitor
         {
             if (classDef.Methods.ContainsKey(methodId))
             {
-                method = classDef.Methods[methodId];
+                method = classDef.Methods[methodId].Item1;
                 return true;
             }
             if (classDef.ParentId != null)

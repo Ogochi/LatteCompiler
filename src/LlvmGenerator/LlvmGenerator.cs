@@ -62,6 +62,10 @@ namespace LlvmGenerator
                 classGenerator.GenerateConstructor(@class);
             });
             program.Classes.ToList().ForEach(classGenerator.GenerateMethods);
+            
+            _globalState.AddParentMethods(program.Classes.ToList());
+            
+            program.Classes.ToList().ForEach(classGenerator.GenerateVTable);
 
             var functionGenerator = new FunctionGenerator();
             program.Functions.ToList().ForEach(function =>

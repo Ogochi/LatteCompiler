@@ -15,6 +15,8 @@ namespace Common.AST
         public bool IsMethod = false;
         
         public string ClassName { get; set; }
+        
+        public string RealName { get; set; }
 
         public FunctionDef(LatteParser.FunctionDefContext context)
         {

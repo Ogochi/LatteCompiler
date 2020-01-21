@@ -9,6 +9,26 @@ namespace LlvmGenerator.Utils
 {
     public static class AstToLlvmString
     {
+
+        public static string FunctionalType(FunctionDef func)
+        {
+            var result = new StringBuilder(Type(func.Type) + "(");
+
+            var isFirst = true;
+            func.Args.ForEach(arg =>
+            {
+                if (!isFirst)
+                {
+                    result.Append(", ");
+                }
+                
+                result.Append(Type(arg.Type));
+                isFirst = false;
+            });
+            
+            result.Append(")*");
+            return result.ToString();
+        }
         public static string Type(LatteParser.TypeContext typeContext)
         {
             return typeContext switch

@@ -43,7 +43,7 @@ namespace LlvmGenerator.Generators
             var fieldTypeString = objectExprResult.Type.GetText();
             
             _llvmGenerator.Emit($"{nextRegister1} = getelementptr %{fieldTypeString}, " +
-                                $"%{fieldTypeString}* {objectExprResult.Register}, i32 0, i32 {field.Number}");
+                                $"%{fieldTypeString}* {objectExprResult.Register}, i32 0, i32 {field.Number + 1}");
             
             _llvmGenerator.Emit($"store {AstToLlvmString.Type(exprResult.Type)} {exprResult.Register}, " +
                                 $"{AstToLlvmString.Type(field.Type)}* {nextRegister1}");
@@ -235,7 +235,7 @@ namespace LlvmGenerator.Generators
                 var nextRegister = _state.NewRegister;
 
                 _llvmGenerator.Emit(
-                    $"{nextRegister} = getelementptr %{classDef.Id}, %{classDef.Id}* {selfRegister}, i32 0, i32 {field.Number}");
+                    $"{nextRegister} = getelementptr %{classDef.Id}, %{classDef.Id}* {selfRegister}, i32 0, i32 {field.Number + 1}");
                 _llvmGenerator.Emit($"store {AstToLlvmString.Type(field.Type)} {exprResult.Register}, " +
                                     $"{AstToLlvmString.Type(field.Type)}* {nextRegister}");
             }

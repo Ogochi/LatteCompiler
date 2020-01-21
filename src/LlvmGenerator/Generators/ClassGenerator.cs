@@ -14,13 +14,55 @@ namespace LlvmGenerator.Generators
         public void GenerateType(ClassDef @class)
         {
             _llvmGenerator.Emit($"%{@class.Id} = type " + "{");
-
-            var isFirst = true;
+            
+            _llvmGenerator.Emit($"%{@class.Id}_vtable*");
+            
             @class.Fields.ToList().ForEach(field =>
                 {
-                    _llvmGenerator.Emit($"{(isFirst ? " " : ",")}{AstToLlvmString.Type(field.Value.Type)}");
-                    isFirst = false;
+                    _llvmGenerator.Emit($",{AstToLlvmString.Type(field.Value.Type)}");
                 });
+            
+            _llvmGenerator.Emit("}");
+        }
+
+        public void GenerateVTable(ClassDef @class)
+        {
+            _llvmGenerator.Emit($"%{@class.Id}_vtable = type " + "{");
+
+            var isFirst = true;
+            @class.Methods.Values.ToList().ForEach(method =>
+            {
+                var toEmit = "";
+                if (!isFirst)
+                {
+                    toEmit = ",";
+                }
+
+                toEmit += AstToLlvmString.FunctionalType(method.Item1);
+                _llvmGenerator.Emit(toEmit);
+
+                isFirst = false;
+            });
+            
+            _llvmGenerator.Emit("}");
+            
+            _llvmGenerator.Emit($"@{@class.Id}_vtable_ptrs = global %{@class.Id}_vtable " + "{");
+            
+            isFirst = true;
+            @class.Methods.Values.ToList().ForEach(method =>
+            {
+                var toEmit = "";
+                if (!isFirst)
+                {
+                    toEmit = ",";
+                }
+
+                toEmit += AstToLlvmString.FunctionalType(method.Item1);
+                toEmit += $" @{method.Item1.Id}";
+                _llvmGenerator.Emit(toEmit);
+
+                isFirst = false;
+            });
             
             _llvmGenerator.Emit("}");
         }
@@ -35,7 +77,10 @@ namespace LlvmGenerator.Generators
             }
             var emptyStr = _globalState.LiteralToStringConstId[""];
             
-            int register = 0, counter = @classDef.OwnFieldsStartIndex;
+            _llvmGenerator.Emit($"%r0 = getelementptr %{@classDef.Id}, %{@classDef.Id}* %this, i32 0, i32 0");
+            _llvmGenerator.Emit($"store %{@classDef.Id}_vtable* @{@classDef.Id}_vtable_ptrs, %{@classDef.Id}_vtable** %r0");
+            
+            int register = 1, counter = @classDef.OwnFieldsStartIndex;
             if (counter > 0)
             {
                 _llvmGenerator.Emit($"%r{register} = bitcast %{@classDef.Id}* %this to %{@classDef.ParentId}*");
@@ -45,7 +90,7 @@ namespace LlvmGenerator.Generators
             
             @classDef.Fields.Skip(counter).ToList().ForEach(field =>
             {
-                _llvmGenerator.Emit($"%r{register} = getelementptr %{@classDef.Id}, %{@classDef.Id}* %this, i32 0, i32 {counter}");
+                _llvmGenerator.Emit($"%r{register} = getelementptr %{@classDef.Id}, %{@classDef.Id}* %this, i32 0, i32 {counter + 1}");
                 _llvmGenerator.Emit(
                     $"store {AstToLlvmString.Type(field.Value.Type)} " +
                     $@"{(field.Value.Type switch
@@ -70,12 +115,13 @@ namespace LlvmGenerator.Generators
             _globalState.currentClass = classDef.Id;
             classDef.Methods.Values.ToList().ForEach(method =>
             {
-                method.Id = new ClassHelper().ClassMethodToFunctionName(classDef.Id, method.Id);
-                method.Args.Add(new Arg(new LatteParser.TTypeNameContext(classDef.Id), "self"));
-                _globalState.NameToFunction[method.Id] = method;
+                method.Item1.RealName = method.Item1.Id;
+                method.Item1.Id = new ClassHelper().ClassMethodToFunctionName(classDef.Id, method.Item1.Id);
+                method.Item1.Args.Add(new Arg(new LatteParser.TTypeNameContext(classDef.Id), "self"));
+                _globalState.NameToFunction[method.Item1.Id] = method.Item1;
             });
             
-            classDef.Methods.Values.ToList().ForEach(new FunctionGenerator().GenerateFromAst);
+            classDef.Methods.Values.ToList().ForEach(method => new FunctionGenerator().GenerateFromAst(method.Item1));
         }
     }
 }

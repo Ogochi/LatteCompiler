@@ -47,5 +47,18 @@ namespace LlvmGenerator.StateManagement
                 @class.AddParentFields(NameToClass[@class.ParentId].Fields.Values.ToList());
             });
         }
+
+        public void AddParentMethods(List<ClassDef> classes)
+        {
+            new ClassHelper().TopoSortClasses(classes).ForEach(@class =>
+            {
+                if (@class.ParentId == null)
+                {
+                    return;
+                }
+
+                @class.AddParentMethods(NameToClass[@class.ParentId].Methods.Values.ToList());
+            });
+        }
     }
 }
