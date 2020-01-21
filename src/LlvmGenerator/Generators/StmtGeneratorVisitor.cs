@@ -213,6 +213,16 @@ namespace LlvmGenerator.Generators
 
             if (_state.VarToLabelToRegister.ContainsKey(ass.Id))
             {
+                var varType = _state.VarToLabelToRegister[ass.Id].ToList()[0].Value.Type;
+                if (varType.GetText() != exprResult.Type.GetText())
+                {
+                    var nextRegister = _state.NewRegister;
+                    _llvmGenerator.Emit($"{nextRegister} = bitcast {AstToLlvmString.Type(exprResult.Type)} " +
+                                        $"{exprResult.Register} to {AstToLlvmString.Type(varType)}");
+                    exprResult.Register = nextRegister;
+                    exprResult.Type = varType;
+                }
+                
                 _state.VarToLabelToRegister[ass.Id] = 
                     new Dictionary<string, RegisterLabelContext> {{exprResult.Label, exprResult}};
             }

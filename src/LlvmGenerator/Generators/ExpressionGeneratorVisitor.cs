@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Common.AST.Exprs;
@@ -50,7 +51,7 @@ namespace LlvmGenerator.Generators
 
         public override RegisterLabelContext Visit(Null @null)
         {
-            return new RegisterLabelContext("null", _state.CurrentLabel, new LatteParser.TVoidContext());
+            return new RegisterLabelContext("null", _state.CurrentLabel, (LatteParser.TypeContext)@null.Type ?? new LatteParser.TVoidContext());
         }
 
         public override RegisterLabelContext Visit(ObjectField objectField)
@@ -145,8 +146,9 @@ namespace LlvmGenerator.Generators
         {
             var functionName = selfRegister == null ? AstToLlvmString.FunctionName(funCall.Id) : funCall.Id;
             var function = _globalState.NameToFunction[functionName];
-            
+
             var toEmit = new StringBuilder();
+            var toEmitBefore = new List<string>();
             var nextRegister = "";
             if (!(function.Type is LatteParser.TVoidContext))
             {
@@ -165,6 +167,14 @@ namespace LlvmGenerator.Generators
                 }
 
                 var exprResult = Visit(expr);
+                if (function.Args[argNum].Type.GetText() != exprResult.Type.GetText())
+                {
+                    var newRegister = _state.NewRegister;
+                    toEmitBefore.Add($"{newRegister} = bitcast {AstToLlvmString.Type(exprResult.Type)} " +
+                                     $"{exprResult.Register} to {AstToLlvmString.Type(function.Args[argNum].Type)}");
+                    exprResult.Register = newRegister;
+                }
+
                 toEmit.Append($"{AstToLlvmString.Type(function.Args[argNum].Type)} {exprResult.Register}");
 
                 argNum++;
@@ -181,6 +191,7 @@ namespace LlvmGenerator.Generators
             }
             
             toEmit.Append(")");
+            _llvmGenerator.Emit(toEmitBefore);
             _llvmGenerator.Emit(toEmit.ToString());
             return new RegisterLabelContext(nextRegister, _state.CurrentLabel, function.Type);
         }

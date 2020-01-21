@@ -43,7 +43,7 @@ namespace Common.AST.Exprs
                 LatteParser.TBoolContext boolContext => new Bool(),
                 LatteParser.TIntContext intContext => new Int(),
                 LatteParser.TStringContext stringContext => new Str(),
-                LatteParser.TTypeNameContext typeNameContext => new Null(),
+                LatteParser.TTypeNameContext typeNameContext => new Null {Type = typeNameContext},
                 LatteParser.TVoidContext voidContext => throw new NotSupportedException(),
                 _ => throw new ArgumentOutOfRangeException(nameof(type))
             };
