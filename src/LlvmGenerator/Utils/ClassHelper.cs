@@ -13,7 +13,7 @@ namespace LlvmGenerator.Utils
         
         public int GetClassSize(ClassDef classDef)
         {
-            return classDef.Fields.Values.Select(field => GetTypeSize(field.Type)).Sum();
+            return classDef.Fields.Values.Select(field => GetTypeSize(field.Type)).Sum() + GetTypeSize(new LatteParser.TTypeNameContext(""));
         }
 
         public string ClassMethodToFunctionName(string classId, string methodId)

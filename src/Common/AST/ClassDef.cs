@@ -50,15 +50,26 @@ namespace Common.AST
 
         public void AddParentMethods(List<(FunctionDef, int)> methods)
         {
-            Methods.ToList().ForEach(pair => Methods[pair.Key] = (pair.Value.Item1, pair.Value.Item2 + methods.Count));
-            
-            methods.ForEach(method =>
+            var newMethods = new Dictionary<string, (FunctionDef, int)>();
+            methods.ForEach(method => newMethods[method.Item1.RealName] = method);
+
+            Methods.ToList().ForEach(pair =>
             {
-                if (!Methods.ContainsKey(method.Item1.RealName))
+                if (newMethods.TryGetValue(pair.Key, out var method))
                 {
-                    Methods[method.Item1.Id] = method;
+                    newMethods[pair.Key] = (pair.Value.Item1, method.Item2);
                 }
             });
+            
+            Methods.ToList().ForEach(pair =>
+            {
+                if (!newMethods.ContainsKey(pair.Key))
+                {
+                    newMethods[pair.Key] = (pair.Value.Item1, newMethods.Count);
+                }
+            });
+
+            Methods = newMethods;
         }
     }
 }

@@ -56,16 +56,22 @@ namespace LlvmGenerator
             _globalState.AddParentFields(program.Classes.ToList());
 
             var classGenerator = new ClassGenerator();
-            program.Classes.ToList().ForEach(@class =>
-            {
-                classGenerator.GenerateType(@class);
-                classGenerator.GenerateConstructor(@class);
-            });
+            program.Classes.ToList().ForEach(classGenerator.GenerateType);
+            program.Classes.ToList().ForEach(classGenerator.GenerateConstructor);
+            program.Classes.ToList().ForEach(classGenerator.TransformMethods);
+
+            var emitted = EmittedCode;
+            EmittedCode = new List<string>();
+            
             program.Classes.ToList().ForEach(classGenerator.GenerateMethods);
             
-            _globalState.AddParentMethods(program.Classes.ToList());
+            var generatedMethods = EmittedCode;
+            EmittedCode = emitted;
             
+            _globalState.AddParentMethods(program.Classes.ToList());
             program.Classes.ToList().ForEach(classGenerator.GenerateVTable);
+            
+            Emit(generatedMethods);
 
             var functionGenerator = new FunctionGenerator();
             program.Functions.ToList().ForEach(function =>

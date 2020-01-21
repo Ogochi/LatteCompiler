@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Common.AST;
 using Common.AST.Exprs;
 using LlvmGenerator.StateManagement;
 using LlvmGenerator.Utils;
@@ -24,29 +25,42 @@ namespace LlvmGenerator.Generators
         {
             var objectExpr = Visit(methodCall.IdExpr);
             var objectClass = _globalState.NameToClass[objectExpr.Type.GetText()];
-            var classWithMethod = objectClass;
+            var (method, methodNum) = objectClass.Methods[methodCall.Id];
+            var selfType = method.Args.Last().Type;
 
-            while (!classWithMethod.Methods.ContainsKey(methodCall.Id))
-            {
-                classWithMethod = _globalState.NameToClass[classWithMethod.ParentId];
-            }
-
-            if (objectClass.Id != classWithMethod.Id)
+            if (objectClass.Id != selfType.GetText())
             {
                 var nextRegister = _state.NewRegister;
                 _llvmGenerator.Emit(
-                    $"{nextRegister} = bitcast %{objectClass.Id}* {objectExpr.Register} to %{classWithMethod.Id}*");
+                    $"{nextRegister} = bitcast %{objectClass.Id}* {objectExpr.Register} to %{selfType.GetText()}*");
                 objectExpr.Register = nextRegister;
-                objectExpr.Type = new LatteParser.TTypeNameContext(classWithMethod.Id);
+                objectExpr.Type = selfType;
             }
+
+            string newRegister1 = _state.NewRegister, newRegister2 = _state.NewRegister,
+                newRegister3 = _state.NewRegister, newRegister4 = _state.NewRegister;
+            _llvmGenerator.Emit($"{newRegister1} = getelementptr %{selfType.GetText()}, %{selfType.GetText()}* " +
+                                $"{objectExpr.Register}, i32 0, i32 0");
+            _llvmGenerator.Emit(
+                $"{newRegister2} = load %{selfType.GetText()}_vtable*, %{selfType.GetText()}_vtable** {newRegister1}");
+            _llvmGenerator.Emit($"{newRegister3} = getelementptr %{selfType.GetText()}_vtable, %{selfType.GetText()}_vtable*" +
+                                $" {newRegister2}, i32 0, i32 {methodNum}");
+            _llvmGenerator.Emit($"{newRegister4} = load {AstToLlvmString.FunctionalType(method)}, " +
+                                $"{AstToLlvmString.FunctionalType(method)}* {newRegister3}");
 
             return VisitFunctionCall(
                 new FunCall
                 {
-                    Id = new ClassHelper().ClassMethodToFunctionName(classWithMethod.Id, methodCall.Id), 
+                    Id = "", 
                     Exprs = methodCall.Exprs
                 },
-                objectExpr);
+                objectExpr,
+                new FunctionDef
+                {
+                    Id = newRegister4,
+                    Type = method.Type,
+                    Args = method.Args
+                });
         }
 
         public override RegisterLabelContext Visit(Null @null)
@@ -142,10 +156,10 @@ namespace LlvmGenerator.Generators
             return VisitFunctionCall(funCall);
         }
 
-        private RegisterLabelContext VisitFunctionCall(FunCall funCall, RegisterLabelContext selfRegister = null)
+        private RegisterLabelContext VisitFunctionCall(FunCall funCall, RegisterLabelContext selfRegister = null, 
+            FunctionDef funcOverride = null)
         {
-            var functionName = selfRegister == null ? AstToLlvmString.FunctionName(funCall.Id) : funCall.Id;
-            var function = _globalState.NameToFunction[functionName];
+            var function = selfRegister == null ? _globalState.NameToFunction[AstToLlvmString.FunctionName(funCall.Id)] : funcOverride;
 
             var toEmit = new StringBuilder();
             var toEmitBefore = new List<string>();
@@ -156,7 +170,7 @@ namespace LlvmGenerator.Generators
                 toEmit = new StringBuilder($"{nextRegister} = ");
             }
 
-            toEmit.Append($"call {AstToLlvmString.Type(function.Type)} @{function.Id}(");
+            toEmit.Append($"call {AstToLlvmString.Type(function.Type)} {(selfRegister == null ? "@" : "")}{function.Id}(");
 
             var argNum = 0;
             foreach (var expr in funCall.Exprs)
