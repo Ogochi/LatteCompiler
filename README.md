@@ -12,6 +12,9 @@ Project includes:
     - Calculating constant expressions
     - Constants propagation in LLVM
     - Removing unreachable branches of conditional statements
+ - Extensions
+    - Structures
+    - Classes with single inheritance
 
 ## Requirements
 
